@@ -3,6 +3,7 @@
   "installCommand": "pnpm install --no-frozen-lockfile",
   "outputDirectory": "dist",
   "rewrites": [
+    { "source": "/googled9a55cf784f7e246.html", "destination": "/googled9a55cf784f7e246.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
