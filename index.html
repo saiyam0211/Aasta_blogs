@@ -30,9 +30,7 @@
 
     <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Performance: Preload critical font and hero image -->
-    <link rel="preload" as="font" href="/fonts/DelaGothicOne-Regular.ttf" type="font/ttf" crossorigin>
-    <link rel="preload" as="font" href="/fonts/Fredoka-VariableFont_wdth,wght.ttf" type="font/ttf" crossorigin>
+    <!-- Performance: Preload critical hero image only (avoid heavy TTF preloads) -->
     <link rel="preload" as="image" href="/hero_mascot.png" fetchpriority="high">
 
     <!-- Structured Data -->
