@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
@@ -100,6 +100,86 @@ export const BlogPage = () => {
   const id = Number(params.id);
 
   const blog = useMemo(() => BLOGS.find(b => b.id === id) ?? BLOGS[0], [id]);
+
+  // Dynamic SEO tags for each blog
+  useEffect(() => {
+    const siteUrl = 'https://aasta.food';
+    const url = `${siteUrl}/blogs/${blog.id}`;
+    const title = `${blog.title} | AASTA Blog`;
+    const description = blog.excerpt;
+    const image = `${siteUrl}${blog.image}`;
+
+    document.title = title;
+
+    const ensureMeta = (name: string, property: string | null, content: string) => {
+      let tag: HTMLMetaElement | null = null;
+      if (name) tag = document.querySelector(`meta[name="${name}"]`);
+      if (!tag && property) tag = document.querySelector(`meta[property="${property}"]`);
+      if (!tag) {
+        tag = document.createElement('meta');
+        if (name) tag.setAttribute('name', name);
+        if (property) tag.setAttribute('property', property);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+      return tag;
+    };
+
+    const setLink = (rel: string, href: string) => {
+      let link = document.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement | null;
+      if (!link) {
+        link = document.createElement('link');
+        link.setAttribute('rel', rel);
+        document.head.appendChild(link);
+      }
+      link.setAttribute('href', href);
+      return link;
+    };
+
+    // Standard
+    const metaDesc = ensureMeta('description', null, description);
+    setLink('canonical', url);
+
+    // Open Graph
+    const ogTitle = ensureMeta('', 'og:title', title);
+    const ogDesc = ensureMeta('', 'og:description', description);
+    const ogType = ensureMeta('', 'og:type', 'article');
+    const ogUrl = ensureMeta('', 'og:url', url);
+    const ogImg = ensureMeta('', 'og:image', image);
+
+    // Twitter
+    const twCard = ensureMeta('twitter:card', null, 'summary_large_image');
+    const twTitle = ensureMeta('twitter:title', null, title);
+    const twDesc = ensureMeta('twitter:description', null, description);
+    const twImg = ensureMeta('twitter:image', null, image);
+
+    // Article JSON-LD
+    const ld = document.createElement('script');
+    ld.type = 'application/ld+json';
+    ld.text = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: blog.title,
+      description,
+      author: { '@type': 'Person', name: blog.author },
+      datePublished: new Date().toISOString(),
+      image: [image],
+      mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+      publisher: {
+        '@type': 'Organization',
+        name: 'AASTA',
+        logo: { '@type': 'ImageObject', url: `${siteUrl}/logo.png` }
+      }
+    });
+    document.head.appendChild(ld);
+
+    return () => {
+      // Cleanup JSON-LD script to avoid duplicates on route change
+      document.head.removeChild(ld);
+      // Do not remove meta/link to preserve back/forward cache benefits
+      // but you may opt to reset if needed.
+    };
+  }, [blog]);
 
   const handleShare = async () => {
     const shareData = {
