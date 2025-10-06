@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const RoadmapSection = () => {
@@ -134,6 +133,8 @@ export const RoadmapSection = () => {
                 src="/blogs_mascot.png"
                 alt="Mascot"
                 className="w-full h-full object-contain"
+                loading="lazy"
+                decoding="async"
                 draggable={false}
               />
             </div>
@@ -144,6 +145,8 @@ export const RoadmapSection = () => {
                 src="/blogs_mascot.png"
                 alt="Mascot"
                 className="w-full h-full object-contain"
+                loading="lazy"
+                decoding="async"
                 draggable={false}
               />
             </div>

@@ -1,4 +1,4 @@
-import { Apple, Play, Sparkles, Star, Zap } from 'lucide-react';
+// icons removed to reduce unused JS
 
 export const HeroSection = () => {
   return (
@@ -92,12 +92,16 @@ export const HeroSection = () => {
 
                 {/* Mascot Image */}
                 <div className="absolute -top-72 right-2 w-80 h-80 justify-center items-center sm:-top-24 sm:right-6 sm:w-56 sm:h-56 md:-top-56 md:-right-32 md:w-[30rem] md:h-[30rem]">
-                  <img 
-                    src="/hero_mascot.png" 
-                    alt="AASTA Mascot" 
-                    className="w-full h-full object-contain"
-                    fetchpriority="high"
-                  />
+                  <picture>
+                    <source srcSet="/hero_mascot.avif" type="image/avif" />
+                    <source srcSet="/hero_mascot.webp" type="image/webp" />
+                    <img 
+                      src="/hero_mascot.png" 
+                      alt="AASTA Mascot" 
+                      className="w-full h-full object-contain"
+                      fetchpriority="high"
+                    />
+                  </picture>
                 </div>
               </div>
             </div>
