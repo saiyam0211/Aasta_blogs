@@ -11,6 +11,7 @@ export const HeroSection = () => {
               src="/hero_bg_star.svg" 
               alt="Rotating star background" 
               className="w-full h-full object-contain"
+              loading="lazy"
             />
           </div>
         </div>
@@ -65,7 +66,7 @@ export const HeroSection = () => {
                 <div className="mb-6 sm:mb-8 flex items-start">
                   <div className="text-left leading-none">
                     <h2 className="text-4xl sm:text-6xl md:text-[5rem] font-dela text-black mb-0 pb-0">
-                      GET IT <img src="/sparkles.svg" alt="Sparkles" className="inline-block w-10 h-10 sm:w-16 sm:h-16 md:w-24 md:h-24 align-text-top ml-2" />
+                      GET IT <img src="/sparkles.svg" alt="Sparkles" className="inline-block w-10 h-10 sm:w-16 sm:h-16 md:w-24 md:h-24 align-text-top ml-2" loading="lazy" />
                     </h2>
                     <h2 className="text-4xl sm:text-6xl md:text-[5rem] font-dela text-black mt-0 pt-0">
                       NOW ON:
@@ -95,6 +96,7 @@ export const HeroSection = () => {
                     src="/hero_mascot.png" 
                     alt="AASTA Mascot" 
                     className="w-full h-full object-contain"
+                    fetchpriority="high"
                   />
                 </div>
               </div>
