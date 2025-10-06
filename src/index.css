@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800;900&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&display=swap');
+
+  @font-face {
+    font-family: 'Tanjambore';
+    src: url('/fonts/Tanjambore_bysaiyam-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Dela Gothic One';
+    src: url('/fonts/DelaGothicOne-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Fredoka';
+    src: url('/fonts/Fredoka-VariableFont_wdth,wght.ttf') format('truetype');
+    font-weight: 300 700;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0D1B12;
+    color: #FFFFFF;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* AASTA Design System Components */
+  .btn-primary {
+    @apply bg-primary text-secondary font-semibold px-7 py-3 rounded-full hover:bg-accent transition-all duration-300;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-primary font-semibold px-7 py-3 rounded-full hover:bg-card-bg transition-all duration-300;
+  }
+
+  .card-asta {
+    @apply bg-card-bg rounded-[20px] p-6 shadow-[0px_6px_18px_rgba(0,0,0,0.3)];
+  }
+
+  .section-padding {
+    @apply py-section;
+  }
+
+  /* Animations */
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float 4s ease-in-out infinite;
+    animation-delay: 1s;
+  }
+
+  .animate-float-slow {
+    animation: float 5s ease-in-out infinite;
+    animation-delay: 0.5s;
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 20s linear infinite;
+  }
+
+  .animate-spin-reverse {
+    animation: spin-reverse 15s linear infinite;
+  }
+
+  .animate-marquee {
+    animation: marquee 20s linear infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes spin-slow {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes spin-reverse {
+    from {
+      transform: rotate(360deg);
+    }
+    to {
+      transform: rotate(0deg);
+    }
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0%);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-fade-up {
+    animation: fadeUp 0.6s ease-out forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 30px rgba(197, 255, 74, 0.4), 0 0 60px rgba(197, 255, 74, 0.2);
+  }
+
+  .glow-accent-strong {
+    box-shadow: 0 0 40px rgba(197, 255, 74, 0.6), 0 0 80px rgba(197, 255, 74, 0.3);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 40px rgba(197, 255, 74, 0.6);
+  }
+
+  .card-lift {
+    transition: all 0.3s ease;
+  }
+
+  .card-lift:hover {
+    transform: translateY(-8px);
+  }
+}  
+
+  
