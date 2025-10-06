@@ -49,6 +49,12 @@ export const Footer = () => {
             >
               FAQ
             </button>
+            <a
+              href="/facts"
+              className="text-gray-300 hover:text-primary transition-colors font-semibold text-lg sm:text-2xl md:text-3xl cursor-pointer hover:scale-105 transition-transform"
+            >
+              Facts
+            </a>
           </div>
 
           {/* App Store & Play Store Buttons */}
