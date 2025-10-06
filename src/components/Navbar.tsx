@@ -1,6 +1,17 @@
 import { Send, MessageCircle, ArrowUpDown, Twitter } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export const Navbar = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleBrandClick = () => {
+    if (location.pathname === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      navigate('/');
+    }
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent pt-4 pb-4 sm:pt-6 sm:pb-6">
@@ -21,6 +32,9 @@ export const Navbar = () => {
           <span
             className="font-tanjambore text-[4rem] md:text-[5rem] text-[#002a01]"
             style={{ letterSpacing: '-0.07em' }}
+            onClick={handleBrandClick}
+            role="button"
+            tabIndex={0}
           >
             aasta
           </span>
