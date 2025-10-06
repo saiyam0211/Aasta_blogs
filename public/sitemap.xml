@@ -4,6 +4,11 @@
     <loc>https://www.aasta.food/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+      <image:loc>https://www.aasta.food/logo.png</image:loc>
+      <image:caption>AASTA brand image</image:caption>
+      <image:title>AASTA</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://www.aasta.food/blogs/1</loc>
