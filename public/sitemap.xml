@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://aasta.food/</loc>
+    <loc>https://www.aasta.food/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://aasta.food/blogs/1</loc>
+    <loc>https://www.aasta.food/blogs/1</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://aasta.food/blogs/2</loc>
+    <loc>https://www.aasta.food/blogs/2</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

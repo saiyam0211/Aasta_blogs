@@ -1,5 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://aasta.food/sitemap.xml
+Sitemap: https://www.aasta.food/sitemap.xml
 
