@@ -162,6 +162,31 @@
   .card-lift:hover {
     transform: translateY(-8px);
   }
-}  
 
-  
+  /* Fix for input text visibility */
+  input[type="text"],
+  input[type="email"], 
+  input[type="password"],
+  textarea {
+    @apply text-gray-900 bg-white;
+  }
+
+  input[type="text"]::placeholder,
+  input[type="email"]::placeholder,
+  input[type="password"]::placeholder,
+  textarea::placeholder {
+    @apply text-gray-500;
+  }
+
+  /* Ensure form inputs are visible in admin interface */
+  .admin-form input,
+  .admin-form textarea {
+    color: #1f2937 !important;
+    background-color: #ffffff !important;
+  }
+
+  .admin-form input::placeholder,
+  .admin-form textarea::placeholder {
+    color: #6b7280 !important;
+  }
+}
