@@ -131,22 +131,34 @@ export const RoadmapSection = () => {
           {/* Right: Character Illustration */}
           <div className="hidden lg:block relative ml-12">
             <div className="w-[35rem] h-[35rem] relative">
-              <img
-                src="/blogs_mascot.png"
-                alt="Mascot"
-                className="w-full h-full object-contain"
-                draggable={false}
-              />
+              <picture>
+                <source srcSet="/blogs_mascot.avif" type="image/avif" />
+                <source srcSet="/blogs_mascot.webp" type="image/webp" />
+                <img
+                  src="/blogs_mascot.png"
+                  alt="Mascot"
+                  className="w-full h-full object-contain"
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                />
+              </picture>
             </div>
           </div>
           <div className="block lg:hidden relative">
             <div className="w-[25rem] h-[25rem] relative">
-              <img
-                src="/blogs_mascot.png"
-                alt="Mascot"
-                className="w-full h-full object-contain"
-                draggable={false}
-              />
+              <picture>
+                <source srcSet="/blogs_mascot.avif" type="image/avif" />
+                <source srcSet="/blogs_mascot.webp" type="image/webp" />
+                <img
+                  src="/blogs_mascot.png"
+                  alt="Mascot"
+                  className="w-full h-full object-contain"
+                  loading="lazy"
+                  decoding="async"
+                  draggable={false}
+                />
+              </picture>
             </div>
           </div>
         </div>

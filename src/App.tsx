@@ -10,6 +10,7 @@ import { DownloadModal } from './components/DownloadModal';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { BlogPage } from './pages/BlogPage';
 import { AdminPage } from './pages/AdminPage';
+import { FactsPage } from './pages/FactsPage';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           />
           <Route path="/blogs/:id" element={<BlogPage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/facts" element={<FactsPage />} />
         </Routes>
         <DownloadModal />
       </div>

@@ -49,6 +49,12 @@ export const Footer = () => {
             >
               FAQ
             </button>
+            <a
+              href="/facts"
+              className="text-gray-300 hover:text-primary transition-colors font-semibold text-lg sm:text-2xl md:text-3xl cursor-pointer hover:scale-105 transition-transform"
+            >
+              Facts
+            </a>
           </div>
 
           {/* App Store & Play Store Buttons */}
@@ -80,11 +86,17 @@ export const Footer = () => {
           {/* Center - Mascot Character */}
           <div className="flex-1 flex justify-center">
             <div className="relative sm:-mb-[6rem] md:-mb-[8rem]">
-              <img
-                src="/footer_mascot.png"
-                alt="AASTA Mascot"
-                className="w-96 h-96 sm:w-60 sm:h-60 md:w-[30rem] md:h-[30rem] object-contain"
-              />
+              <picture>
+                <source srcSet="/footer_mascot.avif" type="image/avif" />
+                <source srcSet="/footer_mascot.webp" type="image/webp" />
+                <img
+                  src="/footer_mascot.png"
+                  alt="AASTA Mascot"
+                  className="w-96 h-96 sm:w-60 sm:h-60 md:w-[30rem] md:h-[30rem] object-contain"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
             </div>
           </div>
 
@@ -108,11 +120,15 @@ export const Footer = () => {
         src="/cloud.svg"
         alt="Cloud decoration"
         className="absolute bottom-0 left-0 sm:left-28 w-[50rem] h-[50rem] sm:w-[60rem] sm:h-[60rem] object-cover -translate-x-1/4 translate-y-1/4 z-0"
+        loading="lazy"
+        decoding="async"
       />
       <img
         src="/cloud.svg"
         alt="Cloud decoration"
         className="absolute bottom-0 right-0 sm:right-28 w-[50rem] h-[50rem] sm:w-[60rem] sm:h-[60rem] object-cover translate-x-1/4 translate-y-1/4 transform -scale-x-100 z-0"
+        loading="lazy"
+        decoding="async"
       />
     </footer>
   );
