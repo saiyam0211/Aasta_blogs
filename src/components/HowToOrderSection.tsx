@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 export const HowToOrderSection = () => {
-  const [currentStep, setCurrentStep] = useState(4);
+  const [currentStep, setCurrentStep] = useState(0);
 
   const steps = [
     {
