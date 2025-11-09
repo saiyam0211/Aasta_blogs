@@ -30,6 +30,8 @@ const corsOptions = {
       'http://localhost:5173',
       'http://localhost:5174',
       'http://localhost:3000',
+      'https://www.aasta.food',
+      'https://aasta.food',
       process.env.FRONTEND_URL
     ].filter(Boolean); // Remove any undefined values
     
