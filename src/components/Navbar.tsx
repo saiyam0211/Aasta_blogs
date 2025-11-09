@@ -51,14 +51,6 @@ export const Navbar = () => {
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-linkedin-icon lucide-linkedin"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
               </a>
             </div>
-            {/* Admin Link */}
-            <a
-              href="/admin"
-              className="hidden sm:inline-flex bg-[#fcfa9f] border-b-4 border-r-2 border-t-2 border-black rounded-full px-4 py-2 text-black font-bold hover:bg-[#faf89a] transition-colors items-center gap-2"
-            >
-              <span>Admin</span>
-            </a>
-            
             {/* Download button hidden per request */}
             {/* Download Button - only show on desktop */}
             <button
