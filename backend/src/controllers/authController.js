@@ -6,7 +6,7 @@ require('dotenv').config();
 
 // Hardcoded admin credentials from environment variables
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '@asta';
 
 // Generate JWT token
 const generateToken = (payload) => {
