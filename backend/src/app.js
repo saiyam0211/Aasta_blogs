@@ -5,6 +5,8 @@ require('dotenv').config();
 // Import routes
 const authRoutes = require('./routes/auth');
 const blogRoutes = require('./routes/blogs');
+const pitchDeckRoutes = require('./routes/pitchdeck');
+const paymentRoutes = require('./routes/payments');
 
 // Import database connection
 const connectDB = require('./config/database');
@@ -32,6 +34,7 @@ const corsOptions = {
       'http://localhost:3000',
       'https://www.aasta.food',
       'https://aasta.food',
+      'http://localhost:54169/',
       process.env.FRONTEND_URL
     ].filter(Boolean); // Remove any undefined values
     
@@ -61,6 +64,8 @@ app.use((req, res, next) => {
 // API routes
 app.use('/api/auth', authRoutes); // Authentication routes
 app.use('/api/blogs', blogRoutes); // Blog routes
+app.use('/api/pitchdeck', pitchDeckRoutes); // Pitch deck routes
+app.use('/api/payments', paymentRoutes); // Payment routes
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

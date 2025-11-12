@@ -11,6 +11,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { BlogPage } from './pages/BlogPage';
 import { AdminPage } from './pages/AdminPage';
 import { FactsPage } from './pages/FactsPage';
+import { BecomeAnInvestorPage } from './pages/BecomeAnInvestorPage';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
           <Route path="/blogs/:id" element={<BlogPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/facts" element={<FactsPage />} />
+          <Route path="/becomeaninvestor" element={<BecomeAnInvestorPage />} />
         </Routes>
         <DownloadModal />
       </div>

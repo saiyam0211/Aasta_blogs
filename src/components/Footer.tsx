@@ -55,6 +55,12 @@ export const Footer = () => {
             >
               Facts
             </a>
+            <a
+              href="/becomeaninvestor"
+              className="text-gray-300 hover:text-primary transition-colors font-semibold text-lg sm:text-2xl md:text-3xl cursor-pointer hover:scale-105 transition-transform"
+            >
+              Invest
+            </a>
           </div>
 
           {/* App Store & Play Store Buttons */}

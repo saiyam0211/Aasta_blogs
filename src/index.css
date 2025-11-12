@@ -143,6 +143,50 @@
     }
   }
 
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .animate-slideUp {
+    animation: slideUp 0.4s ease-out forwards;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-shake {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  @keyframes shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+      transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+      transform: translateX(5px);
+    }
+  }
+
   .glow-accent {
     box-shadow: 0 0 30px rgba(197, 255, 74, 0.4), 0 0 60px rgba(197, 255, 74, 0.2);
   }
@@ -188,5 +232,74 @@
   .admin-form input::placeholder,
   .admin-form textarea::placeholder {
     color: #6b7280 !important;
+  }
+
+  /* Custom Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(208, 238, 138, 0.3);
+    border-radius: 4px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(208, 238, 138, 0.5);
+  }
+
+  /* Animated gradient for progress bar */
+  @keyframes gradientShift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  /* Pushing effect animation at the tip */
+  @keyframes pushEffect {
+    0% {
+      transform: translateX(0);
+      opacity: 0.8;
+    }
+    50% {
+      transform: translateX(6px);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 0.8;
+    }
+  }
+
+  /* Shimmer effect for progress bar */
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Investment Modal - Override global input styles */
+  .investment-modal input[type="text"],
+  .investment-modal input[type="email"] {
+    background-color: rgba(13, 27, 18, 0.5) !important;
+    color: #ffffff !important;
+  }
+
+  .investment-modal input[type="text"]::placeholder,
+  .investment-modal input[type="email"]::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
   }
 }
