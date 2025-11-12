@@ -145,33 +145,34 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
         name: 'AASTA',
         description: `Investment of ₹${amount.toLocaleString('en-IN')}`,
         order_id: orderId,
-        handler: async function (_response: any) {
+        handler: async function (response: any) {
           // Payment successful
           setLoading(false);
+          
+          // Send payment verification to backend
+          const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+          try {
+            await fetch(`${backendUrl}/api/payments/verify`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                investorName,
+                investorEmail,
+                investorPhone,
+                investorLinkedIn,
+                investmentAmount: amount,
+              }),
+            });
+          } catch (error) {
+            console.error('Error verifying payment:', error);
+          }
+          
           setSubmitted(true);
           
-          // TODO: Send payment success data to your backend for verification
-          // Example:
-          // try {
-          //   await fetch('/api/payments/verify', {
-          //     method: 'POST',
-          //     headers: { 'Content-Type': 'application/json' },
-          //     body: JSON.stringify({
-          //       razorpay_order_id: response.razorpay_order_id,
-          //       razorpay_payment_id: response.razorpay_payment_id,
-          //       razorpay_signature: response.razorpay_signature,
-          //       investorName,
-          //       investorEmail,
-          //       investorPhone,
-          //       investorLinkedIn,
-          //       investmentAmount: amount,
-          //     }),
-          //   });
-          // } catch (error) {
-          //   console.error('Error verifying payment:', error);
-          // }
-          
-          // Reset form after 3 seconds
+          // Reset form after 5 seconds
           setTimeout(() => {
             setSubmitted(false);
             setInvestmentAmount('');
@@ -180,7 +181,9 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
             setInvestorPhone('');
             setInvestorLinkedIn('');
             onClose();
-          }, 3000);
+            // Trigger page refresh to update investment data
+            window.location.reload();
+          }, 5000);
         },
         prefill: {
           name: investorName,
@@ -304,12 +307,30 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="font-dela text-3xl sm:text-4xl text-primary mb-4">Payment Successful!</h3>
-            <p className="text-white/80 text-lg mb-2">
-              Thank you for your investment in AASTA!
+            <h3 className="font-dela text-3xl sm:text-4xl text-primary mb-4">Thank You for Your Investment!</h3>
+            <p className="text-white/80 text-lg mb-6">
+              Your support means the world to us. Together, we're building a future where no food goes to waste.
             </p>
-            <p className="text-white/60 text-base">
-              Our team will contact you shortly with further details.
+            
+            {/* Quotes */}
+            <div className="max-w-2xl mx-auto space-y-4 mb-6">
+              <div className="bg-primary/10 border-l-4 border-primary rounded-lg p-4 text-left">
+                <p className="text-white/90 text-base italic mb-2">
+                  "The best investment you can make is in yourself and in causes that matter."
+                </p>
+                <p className="text-primary/80 text-sm">— Warren Buffett</p>
+              </div>
+              
+              <div className="bg-primary/10 border-l-4 border-primary rounded-lg p-4 text-left">
+                <p className="text-white/90 text-base italic mb-2">
+                  "Every small step towards sustainability creates a ripple of positive change."
+                </p>
+                <p className="text-primary/80 text-sm">— AASTA Team</p>
+              </div>
+            </div>
+            
+            <p className="text-white/60 text-sm">
+              Our team will contact you shortly with further details. Welcome to the AASTA family! 🎉
             </p>
           </div>
         ) : (

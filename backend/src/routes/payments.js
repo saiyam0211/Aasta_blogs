@@ -2,7 +2,8 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const {
   createOrder,
-  verifyPayment
+  verifyPayment,
+  getInvestmentsData
 } = require('../controllers/paymentController');
 
 const router = express.Router();
@@ -50,6 +51,23 @@ const paymentVerificationValidation = [
   body('razorpay_signature')
     .notEmpty()
     .withMessage('Payment signature is required'),
+  body('investorName')
+    .notEmpty()
+    .withMessage('Investor name is required'),
+  body('investorEmail')
+    .notEmpty()
+    .isEmail()
+    .withMessage('Valid investor email is required'),
+  body('investorPhone')
+    .notEmpty()
+    .withMessage('Investor phone is required'),
+  body('investmentAmount')
+    .notEmpty()
+    .isNumeric()
+    .withMessage('Investment amount is required'),
+  body('investorLinkedIn')
+    .optional()
+    .isString(),
   handleValidationErrors
 ];
 
@@ -58,6 +76,9 @@ router.post('/create-order', orderValidation, createOrder);
 
 // POST /api/payments/verify - Verify payment signature
 router.post('/verify', paymentVerificationValidation, verifyPayment);
+
+// GET /api/payments/data - Get investments data (total amount, recent investors)
+router.get('/data', getInvestmentsData);
 
 module.exports = router;
 

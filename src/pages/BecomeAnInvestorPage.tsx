@@ -1,12 +1,94 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { PitchDeckSection } from '../components/PitchDeckSection';
 import { InvestmentModal } from '../components/InvestmentModal';
 import { CheckCircle } from 'lucide-react';
 
+interface Investor {
+  investorName: string;
+  createdAt: string;
+  investmentAmount: number;
+}
+
+interface InvestmentData {
+  totalAmount: number;
+  totalInvestors: number;
+  recentInvestors: Investor[];
+}
+
 export const BecomeAnInvestorPage = () => {
   const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false);
+  const [investmentData, setInvestmentData] = useState<InvestmentData>({
+    totalAmount: 0,
+    totalInvestors: 0,
+    recentInvestors: []
+  });
+  const [currentInvestorIndex, setCurrentInvestorIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const GOAL_AMOUNT_USD = 5000;
+
+  // Convert INR to USD (approximate rate: 1 USD = 83 INR)
+  const convertINRtoUSD = (inr: number): number => {
+    return Math.round((inr / 83) * 100) / 100;
+  };
+
+  // Mask investor name (show first 2-3 letters and last 2-3 letters)
+  const maskName = (name: string): string => {
+    if (name.length <= 6) {
+      return name.charAt(0) + '***';
+    }
+    const firstPart = name.substring(0, 2);
+    const lastPart = name.substring(name.length - 2);
+    return `${firstPart}***${lastPart}`;
+  };
+
+  // Fetch investment data
+  useEffect(() => {
+    const fetchInvestmentData = async () => {
+      try {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+        const response = await fetch(`${backendUrl}/api/payments/data`);
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success) {
+            setInvestmentData(result.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching investment data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInvestmentData();
+    // Refresh data every 10 seconds
+    const interval = setInterval(fetchInvestmentData, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Rotate investor names every 5 seconds
+  useEffect(() => {
+    if (investmentData.recentInvestors.length === 0) return;
+    
+    const interval = setInterval(() => {
+      setCurrentInvestorIndex((prev) => 
+        (prev + 1) % investmentData.recentInvestors.length
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [investmentData.recentInvestors.length]);
+
+  const totalAmountUSD = convertINRtoUSD(investmentData.totalAmount);
+  const progressPercentage = Math.min((totalAmountUSD / GOAL_AMOUNT_USD) * 100, 100);
+  
+  // Determine which milestones are achieved
+  const milestone1K = totalAmountUSD >= 1000;
+  const milestone3K = totalAmountUSD >= 3000;
+  const milestone5K = totalAmountUSD >= 5000;
 
   // Pitch deck slides data - automatically extracted from pitchdeck.zip during build
   const pitchDeckSlides = [
@@ -162,11 +244,15 @@ export const BecomeAnInvestorPage = () => {
                 <div className="font-dela text-7xl sm:text-8xl md:text-[10rem] text-primary mb-6 leading-none" style={{
                   textShadow: '0 0 40px rgba(208, 238, 138, 0.3), 0 0 80px rgba(208, 238, 138, 0.2)'
                 }}>
-                  $2,500
+                  {loading ? (
+                    <span className="text-4xl">Loading...</span>
+                  ) : (
+                    `$${totalAmountUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
+                  )}
                 </div>
                 <div className="inline-flex items-center gap-3 bg-primary/10 rounded-full px-6 py-3 border-2 border-primary/30">
                   <span className="text-white/70 text-base sm:text-lg">of</span>
-                  <span className="text-primary font-bold text-xl sm:text-2xl">$5,000</span>
+                  <span className="text-primary font-bold text-xl sm:text-2xl">${GOAL_AMOUNT_USD.toLocaleString('en-US')}</span>
                   <span className="text-white/70 text-base sm:text-lg">goal</span>
                 </div>
               </div>
@@ -179,45 +265,45 @@ export const BecomeAnInvestorPage = () => {
               <div className="relative">
                 {/* Horizontal Track */}
                 <div className="relative h-8 top-12 bg-primary-600 rounded-full border border-primary/30 mb-12 sm:mb-16">
-                  {/* Completed Track (green up to current position - 50%) */}
+                  {/* Completed Track (green up to current position) */}
                   <div 
                     className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-1000 ease-out"
-                    style={{ width: '50%' }} // $2,500 / $5,000 = 50%
+                    style={{ width: `${progressPercentage}%` }}
                   ></div>
                   
                   {/* Future Track (grey for remaining) */}
                   <div 
                     className="absolute right-0 top-0 h-full bg-primary-600 rounded-full"
-                    style={{ width: '50%', left: '50%' }}
+                    style={{ width: `${100 - progressPercentage}%`, left: `${progressPercentage}%` }}
                   ></div>
                 </div>
 
                 {/* Step Indicators */}
                 <div className="relative flex justify-between items-center -mt-14 sm:-mt-16 mb-8">
-                  {/* $1K Step - Active (solid green with white checkmark) */}
+                  {/* $1K Step */}
                   <div className="flex flex-col items-center relative z-20" style={{ width: '20%' }}>
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-primary rounded-full flex items-center justify-center shadow-xl border-4 border-background mb-4">
-                      <CheckCircle className="w-7 h-7 sm:w-9 sm:h-9 text-black" strokeWidth={3} />
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 ${milestone1K ? 'bg-primary' : 'bg-background'} rounded-full flex items-center justify-center shadow-xl border-4 ${milestone1K ? 'border-background' : 'border-primary'} mb-4`}>
+                      <CheckCircle className={`w-7 h-7 sm:w-9 sm:h-9 ${milestone1K ? 'text-black' : 'text-primary'}`} strokeWidth={3} />
                     </div>
                     <div className="">
                       <span className="text-primary font-bold text-sm sm:text-3xl">$1K</span>
                     </div>
                   </div>
                   
-                  {/* $3K Step - Future (outlined with green checkmark) */}
+                  {/* $3K Step */}
                   <div className="flex flex-col items-center relative z-20" style={{ width: '20%', position: 'absolute', left: '60%', transform: 'translateX(-50%)' }}>
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-background rounded-full flex items-center justify-center shadow-xl border-4 border-primary mb-4">
-                      <CheckCircle className="w-7 h-7 sm:w-9 sm:h-9 text-primary" strokeWidth={3} />
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 ${milestone3K ? 'bg-primary' : 'bg-background'} rounded-full flex items-center justify-center shadow-xl border-4 ${milestone3K ? 'border-background' : 'border-primary'} mb-4`}>
+                      <CheckCircle className={`w-7 h-7 sm:w-9 sm:h-9 ${milestone3K ? 'text-black' : 'text-primary'}`} strokeWidth={3} />
                     </div>
                     <div className="">
                       <span className="text-primary font-bold text-sm sm:text-3xl">$3K</span>
                     </div>
                   </div>
                   
-                  {/* $5K Step - Future (outlined with green checkmark) */}
+                  {/* $5K Step */}
                   <div className="flex flex-col items-center relative z-20" style={{ width: '20%', marginLeft: 'auto' }}>
-                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-background rounded-full flex items-center justify-center shadow-xl border-4 border-primary mb-4">
-                      <CheckCircle className="w-7 h-7 sm:w-9 sm:h-9 text-primary" strokeWidth={3} />
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 ${milestone5K ? 'bg-primary' : 'bg-background'} rounded-full flex items-center justify-center shadow-xl border-4 ${milestone5K ? 'border-background' : 'border-primary'} mb-4`}>
+                      <CheckCircle className={`w-7 h-7 sm:w-9 sm:h-9 ${milestone5K ? 'text-black' : 'text-primary'}`} strokeWidth={3} />
                     </div>
                     <div className="">
                       <span className="text-primary font-bold text-sm sm:text-3xl">$5K</span>
@@ -227,6 +313,34 @@ export const BecomeAnInvestorPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Recent Investors Carousel */}
+          {investmentData.recentInvestors.length > 0 && (
+            <div className="mt-12 text-center">
+              <p className="text-white/60 text-sm mb-4">Recent Investors</p>
+              <div className="bg-card-bg/50 rounded-xl p-6 border-2 border-primary/20 backdrop-blur-sm">
+                <div className="flex items-center justify-center gap-2 min-h-[3rem]">
+                  {investmentData.recentInvestors[currentInvestorIndex] && (
+                    <div className="flex items-center gap-3 animate-fadeIn">
+                      <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
+                        <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                      <div className="text-left">
+                        <p className="text-primary font-bold text-lg">
+                          {maskName(investmentData.recentInvestors[currentInvestorIndex].investorName)}
+                        </p>
+                        <p className="text-white/60 text-sm">
+                          Invested ${convertINRtoUSD(investmentData.recentInvestors[currentInvestorIndex].investmentAmount).toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

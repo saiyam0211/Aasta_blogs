@@ -1,6 +1,7 @@
 const Razorpay = require('razorpay');
 const asyncHandler = require('../middleware/asyncHandler');
 const CustomError = require('../middleware/customError');
+const Investment = require('../models/Investment');
 
 // Initialize Razorpay instance
 const razorpay = new Razorpay({
@@ -51,9 +52,18 @@ const createOrder = asyncHandler(async (req, res, next) => {
   }
 });
 
-// Verify payment signature (optional - for additional security)
+// Verify payment signature and save investment
 const verifyPayment = asyncHandler(async (req, res, next) => {
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+  const { 
+    razorpay_order_id, 
+    razorpay_payment_id, 
+    razorpay_signature,
+    investorName,
+    investorEmail,
+    investorPhone,
+    investorLinkedIn,
+    investmentAmount
+  } = req.body;
 
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
     return next(new CustomError('Payment verification data is required', 400));
@@ -66,20 +76,88 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
 
   const isSignatureValid = generatedSignature === razorpay_signature;
 
-  if (isSignatureValid) {
-    res.status(200).json({
+  if (!isSignatureValid) {
+    return next(new CustomError('Invalid payment signature', 400));
+  }
+
+  // Check if investment already exists
+  const existingInvestment = await Investment.findOne({ 
+    razorpayPaymentId: razorpay_payment_id 
+  });
+
+  if (existingInvestment) {
+    return res.status(200).json({
       success: true,
-      message: 'Payment verified successfully',
+      message: 'Payment already verified',
       paymentId: razorpay_payment_id,
       orderId: razorpay_order_id
     });
-  } else {
-    return next(new CustomError('Invalid payment signature', 400));
   }
+
+  // Save investment to database
+  const investment = new Investment({
+    investorName,
+    investorEmail,
+    investorPhone,
+    investorLinkedIn: investorLinkedIn || '',
+    investmentAmount,
+    currency: 'INR',
+    razorpayOrderId: razorpay_order_id,
+    razorpayPaymentId: razorpay_payment_id,
+    razorpaySignature: razorpay_signature,
+    paymentStatus: 'completed'
+  });
+
+  await investment.save();
+
+  res.status(200).json({
+    success: true,
+    message: 'Payment verified and investment saved successfully',
+    paymentId: razorpay_payment_id,
+    orderId: razorpay_order_id,
+    investmentId: investment._id
+  });
+});
+
+// Get recent investors and total amount raised
+const getInvestmentsData = asyncHandler(async (req, res, next) => {
+  // Get total amount raised
+  const totalResult = await Investment.aggregate([
+    {
+      $match: { paymentStatus: 'completed' }
+    },
+    {
+      $group: {
+        _id: null,
+        totalAmount: { $sum: '$investmentAmount' },
+        totalInvestors: { $sum: 1 }
+      }
+    }
+  ]);
+
+  const totalAmount = totalResult.length > 0 ? totalResult[0].totalAmount : 0;
+  const totalInvestors = totalResult.length > 0 ? totalResult[0].totalInvestors : 0;
+
+  // Get recent investors (last 20)
+  const recentInvestors = await Investment.find({ paymentStatus: 'completed' })
+    .select('investorName createdAt investmentAmount')
+    .sort({ createdAt: -1 })
+    .limit(20)
+    .lean();
+
+  res.status(200).json({
+    success: true,
+    data: {
+      totalAmount,
+      totalInvestors,
+      recentInvestors
+    }
+  });
 });
 
 module.exports = {
   createOrder,
-  verifyPayment
+  verifyPayment,
+  getInvestmentsData
 };
 
