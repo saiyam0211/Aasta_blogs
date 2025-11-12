@@ -95,12 +95,9 @@ export const PitchDeckSection = ({ slides }: PitchDeckSectionProps) => {
           {/* Left Side - Pitch Deck Display */}
           <div className="relative flex flex-col justify-center items-center">
             <div
-              className="bg-card-bg rounded-[1.5rem] sm:rounded-[2.5rem] border-2 border-primary/30 overflow-hidden relative"
+              className="bg-card-bg rounded-[1.5rem] sm:rounded-[2.5rem] border-2 border-primary/30 overflow-hidden relative w-full max-w-[1200px] lg:min-w-[700px]"
               style={{
                 aspectRatio: "16 / 9",
-                width: "100%",
-                maxWidth: "1200px",
-                minWidth: "700px",
                 height: "auto",
               }}
             >
@@ -184,13 +181,13 @@ export const PitchDeckSection = ({ slides }: PitchDeckSectionProps) => {
           </div>
 
           {/* Right Side - Navigation Points */}
-          <div className="space-y-4 w-full ml-20 -mt-20">
+          <div className="space-y-4 w-full mt-6 lg:mt-0 lg:ml-20 lg:-mt-20">
             {/* <h3 className="font-dela text-2xl sm:text-3xl text-primary mb-6">
               Our Story
             </h3> */}
             <div 
               ref={scrollContainerRef}
-              className="space-y-3 max-h-[550px] overflow-y-auto pr-2 custom-scrollbar"
+              className="space-y-3 max-h-[450px] sm:max-h-[520px] overflow-y-auto pr-2 custom-scrollbar"
             >
               {slides.map((slide, index) => (
                 <button

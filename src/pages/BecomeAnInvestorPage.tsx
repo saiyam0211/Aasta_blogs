@@ -164,7 +164,7 @@ export const BecomeAnInvestorPage = () => {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="relative pt-24 sm:pt-28 md:pt-32 pb-16 sm:pb-20 px-4 sm:px-6 lg:px-8">
+      <section className="relative pt-20 sm:pt-28 md:pt-32 pb-14 sm:pb-20 px-4 sm:px-6 lg:px-8">
         {/* Rotating Star Background */}
         <div className="absolute inset-0 opacity-20 hidden md:block z-0">
           <div className="-mt-40 inset-0 flex items-center justify-center pointer-events-none z-0">
@@ -185,17 +185,17 @@ export const BecomeAnInvestorPage = () => {
               <span className="text-moss font-black text-sm uppercase tracking-wider">INVESTMENT OPPORTUNITY</span>
             </div> */}
             
-            <h1 className="font-dela text-5xl sm:text-6xl md:text-[8rem] text-[#d0ee8a] mb-6 mt-56">
+            <h1 className="font-dela text-4xl sm:text-6xl md:text-[8rem] text-[#d0ee8a] mb-6 mt-24 sm:mt-40 md:mt-56 leading-tight">
               BECOME OUR
               <br />
               INVESTOR
             </h1>
             
-            <p className="text-base sm:text-xl md:text-2xl text-white/90 max-w-3xl mx-auto font-medium mb-8">
+            <p className="text-base sm:text-xl md:text-2xl text-white/90 max-w-2xl sm:max-w-3xl mx-auto font-medium mb-8 px-2">
               Join Aasta — Where Every Meal Saved, Feeds Someone            
             </p>
 
-            <div className="flex justify-center mb-40">
+            <div className="flex justify-center mb-16 sm:mb-24 md:mb-40">
         <button
           type="button"
           onClick={() => setIsInvestmentModalOpen(true)}
@@ -223,7 +223,7 @@ export const BecomeAnInvestorPage = () => {
       </section>
 
        {/* Fundraising Progress Section */}
-       <section className="py-12 sm:py-16 bg-background relative overflow-hidden">
+       <section className="py-10 sm:py-16 bg-background relative overflow-hidden">
         {/* Enhanced Background decorations */}
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-20 left-10 w-96 h-96 bg-primary rounded-full blur-3xl animate-pulse"></div>
@@ -231,21 +231,21 @@ export const BecomeAnInvestorPage = () => {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="font-dela text-4xl sm:text-5xl md:text-7xl text-primary mb-6">
+          <div className="text-center mb-10 md:mb-16">
+            <h2 className="font-dela text-3xl sm:text-5xl md:text-7xl text-primary mb-4 sm:mb-6">
               JOIN THE REVOLUTION
             </h2>
-            <p className="text-white/80 text-lg sm:text-xl max-w-2xl mx-auto">
+            <p className="text-white/80 text-base sm:text-xl max-w-2xl mx-auto px-2">
               Help us build India's leading food waste solution
             </p>
           </div>
 
           {/* Amount Raised Display - Enhanced */}
-          <div className="relative mb-16">
+          <div className="relative mb-12 sm:mb-16">
             {/* Glow effect behind */}
             <div className="absolute inset-0 bg-primary/10 rounded-[3rem] blur-2xl transform scale-105"></div>
             
-            <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 rounded-[3rem] p-8 sm:p-12 lg:p-16 border-4 border-primary/40 shadow-2xl backdrop-blur-sm">
+            <div className="relative bg-gradient-to-br from-card-bg via-card-bg to-card-bg/80 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 lg:p-16 border-4 border-primary/40 shadow-2xl backdrop-blur-sm">
               {/* Subtle pattern overlay */}
               <div className="absolute inset-0 opacity-[0.03] rounded-[3rem]" style={{
                 backgroundImage: 'radial-gradient(circle, #d0ee8a 1px, transparent 1px)',
@@ -253,12 +253,12 @@ export const BecomeAnInvestorPage = () => {
               }}></div>
 
               <div className="relative z-10 text-center">
-                <div className="inline-block px-6 py-2 bg-primary/30 rounded-full border-2 border-primary/50 mb-8 backdrop-blur-sm">
+                <div className="inline-block px-5 py-2 bg-primary/30 rounded-full border-2 border-primary/50 mb-5 sm:mb-8 backdrop-blur-sm text-xs sm:text-base">
                   <span className="text-primary font-bold text-sm sm:text-base uppercase tracking-wider">
                     Amount Raised
                   </span>
                 </div>
-                <div className="font-dela text-7xl sm:text-8xl md:text-[10rem] text-primary mb-6 leading-none" style={{
+                <div className="font-dela text-5xl sm:text-7xl md:text-[10rem] text-primary mb-4 sm:mb-6 leading-none" style={{
                   textShadow: '0 0 40px rgba(208, 238, 138, 0.3), 0 0 80px rgba(208, 238, 138, 0.2)'
                 }}>
                   {loading ? (
@@ -267,17 +267,47 @@ export const BecomeAnInvestorPage = () => {
                     `$${totalAmountUSD.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
                   )}
                 </div>
-                <div className="inline-flex items-center gap-3 bg-primary/10 rounded-full px-6 py-3 border-2 border-primary/30">
-                  <span className="text-white/70 text-base sm:text-lg">of</span>
-                  <span className="text-primary font-bold text-xl sm:text-2xl">${GOAL_AMOUNT_USD.toLocaleString('en-US')}</span>
-                  <span className="text-white/70 text-base sm:text-lg">goal</span>
+                <div className="inline-flex items-center gap-2 sm:gap-3 bg-primary/10 rounded-full px-4 sm:px-6 py-2 sm:py-3 border-2 border-primary/30 text-xs sm:text-base">
+                  <span className="text-white/70">of</span>
+                  <span className="text-primary font-bold text-lg sm:text-2xl">${GOAL_AMOUNT_USD.toLocaleString('en-US')}</span>
+                  <span className="text-white/70">goal</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Progress Bar with Milestones - Stepper Style */}
-          <div className="relative">
+          {/* Mobile Progress */}
+          <div className="md:hidden space-y-6">
+            <div className="h-4 bg-primary-600/60 rounded-full border border-primary/30 overflow-hidden">
+              <div
+                className="h-full bg-primary rounded-full transition-all duration-700 ease-out"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+            <div className="grid grid-cols-3 gap-3 text-center text-sm text-primary font-semibold">
+              <div className="space-y-1">
+                <div className={`mx-auto w-10 h-10 rounded-full border-2 flex items-center justify-center ${milestone1K ? 'bg-primary text-black border-background' : 'bg-background text-primary border-primary'}`}>
+                  <CheckCircle className="w-5 h-5" strokeWidth={3} />
+                </div>
+                <p>$1K</p>
+              </div>
+              <div className="space-y-1">
+                <div className={`mx-auto w-10 h-10 rounded-full border-2 flex items-center justify-center ${milestone3K ? 'bg-primary text-black border-background' : 'bg-background text-primary border-primary'}`}>
+                  <CheckCircle className="w-5 h-5" strokeWidth={3} />
+                </div>
+                <p>$3K</p>
+              </div>
+              <div className="space-y-1">
+                <div className={`mx-auto w-10 h-10 rounded-full border-2 flex items-center justify-center ${milestone5K ? 'bg-primary text-black border-background' : 'bg-background text-primary border-primary'}`}>
+                  <CheckCircle className="w-5 h-5" strokeWidth={3} />
+                </div>
+                <p>$5K</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop Progress Bar with Milestones */}
+          <div className="relative hidden md:block">
             <div className="relative">
               <div className="relative">
                 {/* Horizontal Track */}
@@ -335,8 +365,8 @@ export const BecomeAnInvestorPage = () => {
           {investmentData.recentInvestors.length > 0 && (
             <div className="mt-12 text-center">
               <p className="text-white/60 text-sm mb-4">Recent Investors</p>
-              <div className="rounded-3xl max-w-2xl mx-auto p-6 ">
-                <div className="flex items-center justify-center gap-4 min-h-[3.5rem]">
+              <div className="rounded-3xl max-w-2xl mx-auto p-4 sm:p-6">
+                <div className="flex items-center justify-center gap-4 min-h-[4rem]">
                   <AnimatePresence mode="wait">
                     {investmentData.recentInvestors[currentInvestorIndex] ? (
                       <motion.div
@@ -345,25 +375,25 @@ export const BecomeAnInvestorPage = () => {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -12, scale: 0.98 }}
                         transition={{ duration: 0.45, ease: 'easeInOut' }}
-                        className="flex items-center gap-4 px-6 py-3 rounded-2xl bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 border border-primary/40 shadow-xl shadow-primary/10"
+                        className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-4 sm:px-6 py-4 rounded-2xl bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 border border-primary/40 shadow-xl shadow-primary/10 text-left sm:text-left"
                       >
-                        <div className="w-11 h-11 bg-primary/20 rounded-full flex items-center justify-center shadow-inner shadow-primary/30">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 bg-primary/20 rounded-full flex items-center justify-center shadow-inner shadow-primary/30 mx-auto sm:mx-0">
                           <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                           </svg>
                         </div>
-                        <div className="text-left">
-                          <p className="text-primary/90 text-sm uppercase tracking-[0.3em] mb-1">
+                        <div className="text-left sm:flex-1">
+                          <p className="text-primary/90 text-xs sm:text-sm uppercase tracking-[0.3em] mb-1">
                             latest supporter
                           </p>
-                          <p className="text-white font-semibold text-xl tracking-wide">
+                          <p className="text-white font-semibold text-lg sm:text-xl tracking-wide leading-tight">
                             {maskName(investmentData.recentInvestors[currentInvestorIndex].investorName)} just invested
                           </p>
-                          <p className="text-primary font-black text-3xl sm:text-4xl leading-tight">
+                        </div>
+                        <div className="text-primary font-black text-3xl sm:text-4xl leading-tight sm:text-right">
                             ${convertINRtoUSD(investmentData.recentInvestors[currentInvestorIndex].investmentAmount).toLocaleString('en-US', { maximumFractionDigits: 0 })}
-                          </p>
                           <p className="text-white/50 text-xs mt-1">
-                            Together we’re moving closer to the goal with every contribution.
+                            Together we’re moving closer to the goal.
                           </p>
                         </div>
                       </motion.div>
@@ -393,10 +423,10 @@ export const BecomeAnInvestorPage = () => {
 
 
       {/* How It Works Section */}
-      <section className="py-8 sm:py-12 bg-background z-50 mt-28">
-        <div className="max-w-[80vw] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="font-dela text-4xl sm:text-5xl md:text-7xl text-primary mb-4 z-50">
+      <section className="py-10 sm:py-14 bg-background z-50 mt-12 sm:mt-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <h2 className="font-dela text-3xl sm:text-5xl md:text-7xl text-primary mb-4 z-50">
               We're on a Mission <br /> to End Food Waste.
             </h2>
           </div>
@@ -404,7 +434,7 @@ export const BecomeAnInvestorPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-12">
             {/* Step 1 */}
             <div className="bg-card-bg rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-10 relative overflow-hidden">
-              <p className="text-white/80 text-sm sm:text-2xl leading-relaxed">
+              <p className="text-white/80 text-base sm:text-xl leading-relaxed">
               India throws away over <b className="text-primary">67 million tonnes of food every year</b>, even when millions go hungry.
               Restaurants dump perfectly edible meals daily — not because it’s bad, but because it’s left over.
               </p>
@@ -412,14 +442,14 @@ export const BecomeAnInvestorPage = () => {
 
             {/* Step 2 */}
             <div className="bg-card-bg rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-10 relative overflow-hidden">
-              <p className="text-white/80 text-sm sm:text-2xl leading-relaxed">
+              <p className="text-white/80 text-base sm:text-xl leading-relaxed">
               Aasta bridges that gap — collecting safe, untouched surplus food from verified restaurants, and offering it to people at <b className="text-primary">half the price</b> through our app and local points.
               </p>
             </div>
 
             {/* Step 3 */}
             <div className="bg-card-bg rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-10 relative overflow-hidden">
-              <p className="text-white/80 text-sm sm:text-2xl leading-relaxed">
+              <p className="text-white/80 text-base sm:text-xl leading-relaxed">
               We make sure <b className="text-primary">every meal saved counts</b> — for the planet, for people, for the restaurant, and for you.
               </p>
             </div>

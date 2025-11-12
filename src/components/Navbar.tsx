@@ -14,11 +14,11 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent pt-4 pb-4 sm:pt-6 sm:pb-6">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-transparent pt-3 sm:pt-6 pb-3 sm:pb-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Pill-shaped navbar container */}
         <div
-          className="bg-cream border-4 border-black rounded-full px-4 sm:px-6 py-2 flex items-center justify-between"
+          className="bg-cream border-4 border-black rounded-full px-4 sm:px-6 py-2 flex items-center justify-between max-w-full overflow-hidden"
           style={{ boxShadow: 'rgb(0, 0, 0) 2px 4px 0px 0px' }}
         >
           {/* Left side - Logo */}
@@ -52,7 +52,7 @@ export const Navbar = () => {
               </a>
             </div>
             <button
-              className="bg-[#fcfab2] border-b-8 border-r-4 border-t-2 border-black rounded-full px-4 sm:px-5 py-2 text-black font-black hover:scale-105 transition-transform items-center gap-2 inline-flex"
+              className="bg-[#fcfab2] border-b-8 border-r-4 hidden md:block border-t-2 border-black rounded-full px-4 sm:px-5 py-2 text-black font-black hover:scale-105 transition-transform items-center gap-2 inline-flex"
               onClick={() => navigate('/becomeaninvestor')}
             >
               Become an Investor
