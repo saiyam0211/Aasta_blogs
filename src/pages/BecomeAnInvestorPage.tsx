@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { PitchDeckSection } from '../components/PitchDeckSection';
@@ -11,27 +11,27 @@ interface Investor {
   investmentAmount: number;
 }
 
-interface InvestmentData {
-  totalAmount: number;
-  totalInvestors: number;
-  recentInvestors: Investor[];
-}
-
 export const BecomeAnInvestorPage = () => {
   const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false);
-  const [investmentData, setInvestmentData] = useState<InvestmentData>({
+  const [investmentData, setInvestmentData] = useState<{
+    totalAmount: number;
+    totalInvestors: number;
+    recentInvestors: Investor[];
+  }>({
     totalAmount: 0,
     totalInvestors: 0,
     recentInvestors: []
   });
   const [currentInvestorIndex, setCurrentInvestorIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [conversionRate, setConversionRate] = useState(0.01205); // default fallback (~₹83 per $1)
 
   const GOAL_AMOUNT_USD = 5000;
 
-  // Convert INR to USD (approximate rate: 1 USD = 83 INR)
+  // Convert INR to USD using live conversion rate
   const convertINRtoUSD = (inr: number): number => {
-    return Math.round((inr / 83) * 100) / 100;
+    if (!conversionRate) return 0;
+    return Math.round(inr * conversionRate * 100) / 100;
   };
 
   // Mask investor name (show first 2-3 letters and last 2-3 letters)
@@ -44,30 +44,46 @@ export const BecomeAnInvestorPage = () => {
     return `${firstPart}***${lastPart}`;
   };
 
-  // Fetch investment data
-  useEffect(() => {
-    const fetchInvestmentData = async () => {
-      try {
-        const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
-        const response = await fetch(`${backendUrl}/api/payments/data`);
-        if (response.ok) {
-          const result = await response.json();
-          if (result.success) {
-            setInvestmentData(result.data);
+  const fetchInvestmentData = useCallback(async () => {
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+      const response = await fetch(`${backendUrl}/api/payments/data`);
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          const { totalAmount, totalInvestors, recentInvestors, conversionRate: rate } = result.data;
+          setInvestmentData({
+            totalAmount,
+            totalInvestors,
+            recentInvestors
+          });
+          if (rate) {
+            setConversionRate(rate);
           }
         }
-      } catch (error) {
-        console.error('Error fetching investment data:', error);
-      } finally {
-        setLoading(false);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching investment data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  // Fetch investment data
+  useEffect(() => {
     fetchInvestmentData();
     // Refresh data every 10 seconds
     const interval = setInterval(fetchInvestmentData, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchInvestmentData]);
+
+  useEffect(() => {
+    const handleInvestmentUpdated = () => {
+      fetchInvestmentData();
+    };
+    window.addEventListener('investment-updated', handleInvestmentUpdated);
+    return () => window.removeEventListener('investment-updated', handleInvestmentUpdated);
+  }, [fetchInvestmentData]);
 
   // Rotate investor names every 5 seconds
   useEffect(() => {

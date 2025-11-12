@@ -3,6 +3,40 @@ const asyncHandler = require('../middleware/asyncHandler');
 const CustomError = require('../middleware/customError');
 const Investment = require('../models/Investment');
 
+let cachedConversionRate = {
+  value: 0.01136, // ~₹88 per $1
+  timestamp: 0
+};
+
+const CONVERSION_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+
+const fetchConversionRate = async () => {
+  const now = Date.now();
+  if (now - cachedConversionRate.timestamp < CONVERSION_CACHE_TTL) {
+    return cachedConversionRate.value;
+  }
+
+  try {
+    const response = await fetch('https://api.exchangerate.host/latest?base=INR&symbols=USD');
+    if (!response.ok) {
+      throw new Error(`Failed to fetch conversion rate: ${response.status}`);
+    }
+    const data = await response.json();
+    const usdRate = data?.rates?.USD;
+    if (usdRate) {
+      cachedConversionRate = {
+        value: usdRate,
+        timestamp: now
+      };
+      return usdRate;
+    }
+  } catch (error) {
+    console.error('Error fetching INR->USD conversion rate:', error);
+  }
+
+  return cachedConversionRate.value || 0.01136;
+};
+
 // Initialize Razorpay instance
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_1DP5mmOlF5G5ag',
@@ -121,6 +155,8 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
 
 // Get recent investors and total amount raised
 const getInvestmentsData = asyncHandler(async (req, res, next) => {
+  const conversionRate = await fetchConversionRate();
+
   // Get total amount raised
   const totalResult = await Investment.aggregate([
     {
@@ -150,7 +186,8 @@ const getInvestmentsData = asyncHandler(async (req, res, next) => {
     data: {
       totalAmount,
       totalInvestors,
-      recentInvestors
+      recentInvestors,
+      conversionRate
     }
   });
 });

@@ -111,6 +111,21 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
     }
   };
 
+  const resetForm = () => {
+    setSubmitted(false);
+    setInvestmentAmount('');
+    setInvestorName('');
+    setInvestorEmail('');
+    setInvestorPhone('');
+    setInvestorLinkedIn('');
+    setError('');
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
   const handlePayment = async () => {
     const amount = parseFloat(investmentAmount);
     
@@ -170,20 +185,8 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
             console.error('Error verifying payment:', error);
           }
           
-          setSubmitted(true);
-          
-          // Reset form after 5 seconds
-          setTimeout(() => {
-            setSubmitted(false);
-            setInvestmentAmount('');
-            setInvestorName('');
-            setInvestorEmail('');
-            setInvestorPhone('');
-            setInvestorLinkedIn('');
-            onClose();
-            // Trigger page refresh to update investment data
-            window.location.reload();
-          }, 5000);
+        setSubmitted(true);
+        window.dispatchEvent(new Event('investment-updated'));
         },
         prefill: {
           name: investorName,
@@ -275,14 +278,14 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
-        onClick={onClose}
+        onClick={handleClose}
       />
 
       {/* Modal Content */}
       <div className="investment-modal relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-card-bg via-card-bg/95 to-card-bg/90 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-12 border-4 border-primary/40 shadow-2xl animate-slideUp [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {/* Close Button */}
         <button
-          onClick={onClose}
+          onClick={handleClose}
           className="absolute top-4 right-4 w-12 h-12 bg-primary/20 hover:bg-primary/40 rounded-full flex items-center justify-center text-primary transition-all hover:scale-110 active:scale-95 shadow-lg"
           aria-label="Close modal"
         >
@@ -329,9 +332,15 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
               </div>
             </div>
             
-            <p className="text-white/60 text-sm">
+            <p className="text-white/60 text-sm mb-6">
               Our team will contact you shortly with further details. Welcome to the AASTA family! 🎉
             </p>
+            <button
+              onClick={handleClose}
+              className="bg-primary text-black font-bold px-6 py-3 rounded-full hover:scale-105 transition-transform"
+            >
+              Close and Continue Exploring
+            </button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
