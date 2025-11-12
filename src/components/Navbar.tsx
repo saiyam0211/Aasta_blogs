@@ -51,17 +51,11 @@ export const Navbar = () => {
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-linkedin-icon lucide-linkedin"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
               </a>
             </div>
-            {/* Download button hidden per request */}
-            {/* Download Button - only show on desktop */}
             <button
-              className="hidden sm:inline-flex bg-[#fcfa9f] border-b-8 border-r-4 border-t-2 border-black rounded-full px-5 py-2 text-black font-black opacity-60 cursor-not-allowed items-center gap-2"
-              disabled
-              onClick={() => {
-                window.dispatchEvent(new CustomEvent('open-download-modal'));
-              }}
+              className="bg-[#fcfab2] border-b-8 border-r-4 border-t-2 border-black rounded-full px-4 sm:px-5 py-2 text-black font-black hover:scale-105 transition-transform items-center gap-2 inline-flex"
+              onClick={() => navigate('/becomeaninvestor')}
             >
-              <span>Download</span>
-              <span className="text-[.9em] font-normal ml-2">(coming soon)</span>
+              Become an Investor
             </button>
           </div>
         </div>

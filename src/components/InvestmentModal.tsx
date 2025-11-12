@@ -12,6 +12,8 @@ interface InvestmentModalProps {
   onClose: () => void;
 }
 
+const MAX_PAYMENT_PER_TRANSACTION = Number(import.meta.env.VITE_MAX_PAYMENT_PER_TRANSACTION || 50000);
+
 export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
   const [investmentAmount, setInvestmentAmount] = useState('');
   const [investorName, setInvestorName] = useState('');
@@ -21,6 +23,10 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const [paymentQueue, setPaymentQueue] = useState<number[]>([]);
+  const [currentPaymentIndex, setCurrentPaymentIndex] = useState(0);
+  const [currentChunkAmount, setCurrentChunkAmount] = useState(0);
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
 
   const quickAmounts = [5000, 10000, 25000, 50000, 100000, 250000];
 
@@ -119,6 +125,10 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
     setInvestorPhone('');
     setInvestorLinkedIn('');
     setError('');
+    setPaymentQueue([]);
+    setCurrentPaymentIndex(0);
+    setCurrentChunkAmount(0);
+    setAwaitingConfirmation(false);
   };
 
   const handleClose = () => {
@@ -126,45 +136,33 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
     onClose();
   };
 
-  const handlePayment = async () => {
-    const amount = parseFloat(investmentAmount);
-    
-    if (!amount || amount < 1000) {
-      setError('Minimum investment amount is ₹1,000');
-      return;
-    }
+  const handleConfirmPayment = () => {
+    if (!paymentQueue.length) return;
+    setError('');
+    processSplitPayment(paymentQueue, currentPaymentIndex);
+  };
 
-    if (!validateLinkedInUrl(investorLinkedIn)) {
-      setError('Please enter a valid LinkedIn URL (e.g., linkedin.com/in/yourname)');
-      return;
-    }
-
-    // Check if Razorpay is loaded
-    if (!window.Razorpay) {
-      setError('Payment gateway is not available. Please refresh the page and try again.');
-      return;
-    }
-
+  const processSplitPayment = async (queue: number[], index: number) => {
+    const chunkAmount = queue[index];
+    setCurrentPaymentIndex(index);
+    setCurrentChunkAmount(chunkAmount);
+    setAwaitingConfirmation(false);
     setLoading(true);
     setError('');
 
     try {
-      // Create order
-      const orderId = await createRazorpayOrder(amount);
+      const orderId = await createRazorpayOrder(chunkAmount);
 
-      // Initialize Razorpay checkout
       const options = {
         key: RAZORPAY_KEY_ID,
-        amount: amount * 100, // Amount in paise
+        amount: chunkAmount * 100, // Amount in paise
         currency: 'INR',
         name: 'AASTA',
-        description: `Investment of ₹${amount.toLocaleString('en-IN')}`,
+        description: `Investment of ₹${chunkAmount.toLocaleString('en-IN')}`,
         order_id: orderId,
         handler: async function (response: any) {
-          // Payment successful
           setLoading(false);
-          
-          // Send payment verification to backend
+
           const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
           try {
             await fetch(`${backendUrl}/api/payments/verify`, {
@@ -178,15 +176,25 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                 investorEmail,
                 investorPhone,
                 investorLinkedIn,
-                investmentAmount: amount,
+                investmentAmount: chunkAmount,
               }),
             });
+            window.dispatchEvent(new Event('investment-updated'));
           } catch (error) {
             console.error('Error verifying payment:', error);
           }
-          
-        setSubmitted(true);
-        window.dispatchEvent(new Event('investment-updated'));
+
+          const nextIndex = index + 1;
+          if (nextIndex < queue.length) {
+            setCurrentPaymentIndex(nextIndex);
+            setCurrentChunkAmount(queue[nextIndex]);
+            setAwaitingConfirmation(true);
+          } else {
+            setSubmitted(true);
+            setPaymentQueue([]);
+            setCurrentChunkAmount(0);
+            setAwaitingConfirmation(false);
+          }
         },
         prefill: {
           name: investorName,
@@ -199,28 +207,20 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
         modal: {
           ondismiss: function() {
             setLoading(false);
-            setError('Payment was cancelled. You can try again.');
+            setError('Payment was cancelled. You can resume to complete the remaining amount.');
+            setAwaitingConfirmation(true);
           },
         },
-        // Prevent Razorpay from showing browser alerts
         config: {
           display: {
             blocks: {
               banks: {
                 name: 'All payment methods',
                 instruments: [
-                  {
-                    method: 'card',
-                  },
-                  {
-                    method: 'netbanking',
-                  },
-                  {
-                    method: 'wallet',
-                  },
-                  {
-                    method: 'upi',
-                  },
+                  { method: 'card' },
+                  { method: 'netbanking' },
+                  { method: 'wallet' },
+                  { method: 'upi' },
                 ],
               },
             },
@@ -233,43 +233,77 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
       };
 
       const razorpay = new window.Razorpay(options);
-      
-      // Handle payment failure - prevent browser alerts
+
       razorpay.on('payment.failed', function (errorResponse: any) {
         setLoading(false);
         const errorMessage = errorResponse.error?.description || errorResponse.error?.reason || 'Payment failed. Please try again.';
         setError(errorMessage);
         console.error('Payment failed:', errorResponse.error);
+        setAwaitingConfirmation(true);
       });
 
-      // Handle other errors
       razorpay.on('error', function (error: any) {
         setLoading(false);
         const errorMessage = error.error?.description || error.error?.reason || 'An error occurred during payment. Please try again.';
         setError(errorMessage);
         console.error('Razorpay error:', error);
+        setAwaitingConfirmation(true);
       });
 
-      // Open Razorpay checkout
       razorpay.open();
-      
     } catch (error: any) {
       console.error('Payment error:', error);
       setLoading(false);
       const errorMessage = error?.message || 'An error occurred. Please try again.';
       setError(errorMessage);
-      
-      // If backend is not available, show helpful message
+      setAwaitingConfirmation(true);
+
       if (errorMessage.includes('backend') || errorMessage.includes('Failed to fetch')) {
         setError('Backend server is not running. Please start the backend server on port 5000 and try again.');
       }
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await handlePayment();
+  const handlePayment = () => {
+    const amount = parseFloat(investmentAmount);
+    
+    if (!amount || amount < 1000) {
+      setError('Minimum investment amount is ₹1,000');
+      return;
+    }
+
+    if (!validateLinkedInUrl(investorLinkedIn)) {
+      setError('Please enter a valid LinkedIn URL (e.g., linkedin.com/in/yourname)');
+      return;
+    }
+
+    if (!window.Razorpay) {
+      setError('Payment gateway is not available. Please refresh the page and try again.');
+      return;
+    }
+
+    const queue: number[] = [];
+    let remaining = amount;
+    while (remaining > 0) {
+      const chunk = Math.min(remaining, MAX_PAYMENT_PER_TRANSACTION);
+      queue.push(chunk);
+      remaining -= chunk;
+    }
+
+    setPaymentQueue(queue);
+    setCurrentPaymentIndex(0);
+    setCurrentChunkAmount(queue[0]);
+    setAwaitingConfirmation(true);
+    setError('');
   };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handlePayment();
+  };
+
+  const splitInProgress = paymentQueue.length > 0 && !submitted;
+  const totalSteps = paymentQueue.length || 1;
 
   if (!isOpen) return null;
 
@@ -294,14 +328,16 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
           </svg>
         </button>
 
-        <div className="text-center mb-8">
-          <h2 className="font-dela text-3xl sm:text-4xl md:text-5xl text-primary mb-4 bg-gradient-to-r from-primary to-primary/80 bg-clip-text">
-            MAKE YOUR INVESTMENT
-          </h2>
-          <p className="text-white/80 text-base sm:text-lg">
-            Fill out the form below and complete your secure payment to start your investment journey with AASTA
-          </p>
-        </div>
+        {!submitted && (
+          <div className="text-center mb-8">
+            <h2 className="font-dela text-3xl sm:text-4xl md:text-5xl text-primary mb-4 bg-gradient-to-r from-primary to-primary/80 bg-clip-text">
+              MAKE YOUR INVESTMENT
+            </h2>
+            <p className="text-white/80 text-base sm:text-lg">
+              Fill out the form below and complete your secure payment to start your investment journey with AASTA
+            </p>
+          </div>
+        )}
 
         {submitted ? (
           <div className="text-center py-12 animate-fadeIn">
@@ -344,6 +380,39 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
+            {splitInProgress && (
+              <div className="bg-primary/10 border border-primary/40 rounded-xl p-4 text-white/80">
+                <p className="text-primary font-bold text-sm sm:text-base">
+                  Split Payment {awaitingConfirmation ? 'Confirmation' : 'In Progress'}
+                </p>
+                <p className="text-white/60 text-xs sm:text-sm mt-2">
+                  Step {currentPaymentIndex + 1} of {totalSteps} — Processing ₹{currentChunkAmount.toLocaleString('en-IN')}
+                </p>
+                <p className="text-white/50 text-xs sm:text-sm mt-1">
+                  Maximum per transaction is ₹{MAX_PAYMENT_PER_TRANSACTION.toLocaleString('en-IN')}. We’ll guide you through the remaining steps automatically.
+                </p>
+                {awaitingConfirmation ? (
+                  <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <p className="text-white/70 text-xs sm:text-sm">
+                      Click confirm to open the secure Razorpay checkout for this installment.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleConfirmPayment}
+                      disabled={loading}
+                      className="bg-primary text-black font-bold px-4 py-2 rounded-full hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Confirm & Pay ₹{currentChunkAmount.toLocaleString('en-IN')}
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-white/50 text-xs sm:text-sm mt-3">
+                    {loading ? 'Opening secure Razorpay checkout…' : 'Awaiting payment status…'}
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Investment Amount */}
             <div className="space-y-3">
               <label className="block text-white font-bold mb-3 text-sm sm:text-base flex items-center gap-2">
@@ -357,6 +426,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                   <button
                     key={amount}
                     type="button"
+                    disabled={splitInProgress || loading}
                     onClick={() => {
                       setInvestmentAmount(amount.toString());
                       setError('');
@@ -365,7 +435,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                       investmentAmount === amount.toString()
                         ? 'bg-primary text-black border-primary shadow-lg shadow-primary/50 scale-105'
                         : 'bg-background/50 text-white border-white/20 hover:border-primary/50 hover:bg-background/70'
-                    }`}
+                    } ${splitInProgress || loading ? 'opacity-50 cursor-not-allowed hover:scale-100 active:scale-100' : ''}`}
                   >
                     ₹{amount.toLocaleString('en-IN')}
                   </button>
@@ -381,6 +451,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                 placeholder="Or enter custom amount (min ₹1,000)"
                 className="w-full bg-background/50 border-2 border-white/20 rounded-xl px-4 py-3.5 text-white placeholder-white/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                 min="1000"
+                disabled={splitInProgress || loading}
                 required
               />
             </div>
@@ -399,6 +470,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                 onChange={(e) => setInvestorName(e.target.value)}
                 placeholder="Enter your full name"
                 className="w-full bg-background/50 border-2 border-white/20 rounded-xl px-4 py-3.5 text-white placeholder-white/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                disabled={splitInProgress || loading}
                 required
               />
             </div>
@@ -417,6 +489,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                 onChange={(e) => setInvestorEmail(e.target.value)}
                 placeholder="Enter your email"
                 className="w-full bg-background/50 border-2 border-white/20 rounded-xl px-4 py-3.5 text-white placeholder-white/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                disabled={splitInProgress || loading}
                 required
               />
             </div>
@@ -435,6 +508,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                 onChange={(e) => setInvestorPhone(e.target.value)}
                 placeholder="Enter your phone number"
                 className="w-full bg-background/50 border-2 border-white/20 rounded-xl px-4 py-3.5 text-white placeholder-white/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                disabled={splitInProgress || loading}
                 required
               />
             </div>
@@ -456,6 +530,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                 }}
                 placeholder="https://linkedin.com/in/yourname"
                 className="w-full bg-background/50 border-2 border-white/20 rounded-xl px-4 py-3.5 text-white placeholder-white/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                disabled={splitInProgress || loading}
               />
             </div>
 
@@ -484,7 +559,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
             {/* Payment Button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || splitInProgress}
               className="w-full bg-gradient-to-r from-[#fcfab2] to-[#f5f18a] border-b-8 border-r-4 border-t-2 border-black rounded-full py-5 sm:py-6 px-8 text-black font-black text-lg sm:text-xl hover:scale-105 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-2xl shadow-primary/30 flex items-center justify-center gap-3"
             >
               {loading ? (
@@ -494,6 +569,13 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   <span>Processing Payment...</span>
+                </>
+              ) : splitInProgress ? (
+                <>
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <span>Split Payment Active</span>
                 </>
               ) : (
                 <>

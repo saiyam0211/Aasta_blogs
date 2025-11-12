@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { PitchDeckSection } from '../components/PitchDeckSection';
@@ -334,25 +335,49 @@ export const BecomeAnInvestorPage = () => {
           {investmentData.recentInvestors.length > 0 && (
             <div className="mt-12 text-center">
               <p className="text-white/60 text-sm mb-4">Recent Investors</p>
-              <div className="bg-card-bg/50 rounded-xl p-6 border-2 border-primary/20 backdrop-blur-sm">
-                <div className="flex items-center justify-center gap-2 min-h-[3rem]">
-                  {investmentData.recentInvestors[currentInvestorIndex] && (
-                    <div className="flex items-center gap-3 animate-fadeIn">
-                      <div className="w-10 h-10 bg-primary/20 rounded-full flex items-center justify-center">
-                        <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                      </div>
-                      <div className="text-left">
-                        <p className="text-primary font-bold text-lg">
-                          {maskName(investmentData.recentInvestors[currentInvestorIndex].investorName)}
-                        </p>
-                        <p className="text-white/60 text-sm">
-                          Invested ${convertINRtoUSD(investmentData.recentInvestors[currentInvestorIndex].investmentAmount).toLocaleString('en-US', { maximumFractionDigits: 0 })}
-                        </p>
-                      </div>
-                    </div>
-                  )}
+              <div className="rounded-3xl max-w-2xl mx-auto p-6 ">
+                <div className="flex items-center justify-center gap-4 min-h-[3.5rem]">
+                  <AnimatePresence mode="wait">
+                    {investmentData.recentInvestors[currentInvestorIndex] ? (
+                      <motion.div
+                        key={`${currentInvestorIndex}-${investmentData.recentInvestors[currentInvestorIndex].investorName}-${investmentData.recentInvestors[currentInvestorIndex].createdAt}`}
+                        initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -12, scale: 0.98 }}
+                        transition={{ duration: 0.45, ease: 'easeInOut' }}
+                        className="flex items-center gap-4 px-6 py-3 rounded-2xl bg-gradient-to-r from-primary/15 via-primary/10 to-primary/5 border border-primary/40 shadow-xl shadow-primary/10"
+                      >
+                        <div className="w-11 h-11 bg-primary/20 rounded-full flex items-center justify-center shadow-inner shadow-primary/30">
+                          <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                        </div>
+                        <div className="text-left">
+                          <p className="text-primary/90 text-sm uppercase tracking-[0.3em] mb-1">
+                            latest supporter
+                          </p>
+                          <p className="text-white font-semibold text-xl tracking-wide">
+                            {maskName(investmentData.recentInvestors[currentInvestorIndex].investorName)} just invested
+                          </p>
+                          <p className="text-primary font-black text-3xl sm:text-4xl leading-tight">
+                            ${convertINRtoUSD(investmentData.recentInvestors[currentInvestorIndex].investmentAmount).toLocaleString('en-US', { maximumFractionDigits: 0 })}
+                          </p>
+                          <p className="text-white/50 text-xs mt-1">
+                            Together we’re moving closer to the goal with every contribution.
+                          </p>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="no-investors"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 0.9 }}
+                        className="text-white/50 text-sm"
+                      >
+                        Be the first to invest today!
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
             </div>
