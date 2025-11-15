@@ -240,6 +240,61 @@ export const BecomeAnInvestorPage = () => {
             </p>
           </div>
 
+          {/* Desktop Progress Bar with Milestones */}
+          <div className="relative hidden md:block">
+            <div className="relative">
+              <div className="relative">
+                {/* Horizontal Track */}
+                <div className="relative h-8 top-12 bg-primary-600 rounded-full border border-primary/30 mb-12 sm:mb-16">
+                  {/* Completed Track (green up to current position) */}
+                  <div 
+                    className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-1000 ease-out"
+                    style={{ width: `${progressPercentage}%` }}
+                  ></div>
+                  
+                  {/* Future Track (grey for remaining) */}
+                  <div 
+                    className="absolute right-0 top-0 h-full bg-primary-600 rounded-full"
+                    style={{ width: `${100 - progressPercentage}%`, left: `${progressPercentage}%` }}
+                  ></div>
+                </div>
+
+                {/* Step Indicators */}
+                <div className="relative flex justify-between items-center -mt-14 sm:-mt-16 mb-8">
+                  {/* $1K Step */}
+                  <div className="flex flex-col items-center relative z-20" style={{ width: '20%' }}>
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 ${milestone1K ? 'bg-primary' : 'bg-background'} rounded-full flex items-center justify-center shadow-xl border-4 ${milestone1K ? 'border-background' : 'border-primary'} mb-4`}>
+                      <CheckCircle className={`w-7 h-7 sm:w-9 sm:h-9 ${milestone1K ? 'text-black' : 'text-primary'}`} strokeWidth={3} />
+                    </div>
+                    <div className="">
+                      <span className="text-primary font-bold text-sm sm:text-3xl">$1K</span>
+                    </div>
+                  </div>
+                  
+                  {/* $3K Step */}
+                  <div className="flex flex-col items-center relative z-20" style={{ width: '20%', position: 'absolute', left: '60%', transform: 'translateX(-50%)' }}>
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 ${milestone3K ? 'bg-primary' : 'bg-background'} rounded-full flex items-center justify-center shadow-xl border-4 ${milestone3K ? 'border-background' : 'border-primary'} mb-4`}>
+                      <CheckCircle className={`w-7 h-7 sm:w-9 sm:h-9 ${milestone3K ? 'text-black' : 'text-primary'}`} strokeWidth={3} />
+                    </div>
+                    <div className="">
+                      <span className="text-primary font-bold text-sm sm:text-3xl">$3K</span>
+                    </div>
+                  </div>
+                  
+                  {/* $5K Step */}
+                  <div className="flex flex-col items-center relative z-20" style={{ width: '20%', marginLeft: 'auto' }}>
+                    <div className={`w-12 h-12 sm:w-16 sm:h-16 ${milestone5K ? 'bg-primary' : 'bg-background'} rounded-full flex items-center justify-center shadow-xl border-4 ${milestone5K ? 'border-background' : 'border-primary'} mb-4`}>
+                      <CheckCircle className={`w-7 h-7 sm:w-9 sm:h-9 ${milestone5K ? 'text-black' : 'text-primary'}`} strokeWidth={3} />
+                    </div>
+                    <div className="">
+                      <span className="text-primary font-bold text-sm sm:text-3xl">$5K</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Amount Raised Display - Enhanced */}
           <div className="relative mb-12 sm:mb-16">
             {/* Glow effect behind */}
@@ -306,60 +361,7 @@ export const BecomeAnInvestorPage = () => {
             </div>
           </div>
 
-          {/* Desktop Progress Bar with Milestones */}
-          <div className="relative hidden md:block">
-            <div className="relative">
-              <div className="relative">
-                {/* Horizontal Track */}
-                <div className="relative h-8 top-12 bg-primary-600 rounded-full border border-primary/30 mb-12 sm:mb-16">
-                  {/* Completed Track (green up to current position) */}
-                  <div 
-                    className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-1000 ease-out"
-                    style={{ width: `${progressPercentage}%` }}
-                  ></div>
-                  
-                  {/* Future Track (grey for remaining) */}
-                  <div 
-                    className="absolute right-0 top-0 h-full bg-primary-600 rounded-full"
-                    style={{ width: `${100 - progressPercentage}%`, left: `${progressPercentage}%` }}
-                  ></div>
-                </div>
-
-                {/* Step Indicators */}
-                <div className="relative flex justify-between items-center -mt-14 sm:-mt-16 mb-8">
-                  {/* $1K Step */}
-                  <div className="flex flex-col items-center relative z-20" style={{ width: '20%' }}>
-                    <div className={`w-12 h-12 sm:w-16 sm:h-16 ${milestone1K ? 'bg-primary' : 'bg-background'} rounded-full flex items-center justify-center shadow-xl border-4 ${milestone1K ? 'border-background' : 'border-primary'} mb-4`}>
-                      <CheckCircle className={`w-7 h-7 sm:w-9 sm:h-9 ${milestone1K ? 'text-black' : 'text-primary'}`} strokeWidth={3} />
-                    </div>
-                    <div className="">
-                      <span className="text-primary font-bold text-sm sm:text-3xl">$1K</span>
-                    </div>
-                  </div>
-                  
-                  {/* $3K Step */}
-                  <div className="flex flex-col items-center relative z-20" style={{ width: '20%', position: 'absolute', left: '60%', transform: 'translateX(-50%)' }}>
-                    <div className={`w-12 h-12 sm:w-16 sm:h-16 ${milestone3K ? 'bg-primary' : 'bg-background'} rounded-full flex items-center justify-center shadow-xl border-4 ${milestone3K ? 'border-background' : 'border-primary'} mb-4`}>
-                      <CheckCircle className={`w-7 h-7 sm:w-9 sm:h-9 ${milestone3K ? 'text-black' : 'text-primary'}`} strokeWidth={3} />
-                    </div>
-                    <div className="">
-                      <span className="text-primary font-bold text-sm sm:text-3xl">$3K</span>
-                    </div>
-                  </div>
-                  
-                  {/* $5K Step */}
-                  <div className="flex flex-col items-center relative z-20" style={{ width: '20%', marginLeft: 'auto' }}>
-                    <div className={`w-12 h-12 sm:w-16 sm:h-16 ${milestone5K ? 'bg-primary' : 'bg-background'} rounded-full flex items-center justify-center shadow-xl border-4 ${milestone5K ? 'border-background' : 'border-primary'} mb-4`}>
-                      <CheckCircle className={`w-7 h-7 sm:w-9 sm:h-9 ${milestone5K ? 'text-black' : 'text-primary'}`} strokeWidth={3} />
-                    </div>
-                    <div className="">
-                      <span className="text-primary font-bold text-sm sm:text-3xl">$5K</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          
 
           {/* Recent Investors Carousel */}
           {investmentData.recentInvestors.length > 0 && (
