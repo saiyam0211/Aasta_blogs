@@ -34,7 +34,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
 
   // Razorpay Key ID - Replace with your actual Razorpay Key ID from environment variables
   // For production, use: import.meta.env.VITE_RAZORPAY_KEY_ID
-  const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_1DP5mmOlF5G5ag';
+  const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || '';
 
   // Lock body scroll while modal is open
   useEffect(() => {
@@ -157,6 +157,11 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
   };
 
   const processSplitPayment = async (queue: number[], index: number) => {
+    if (!RAZORPAY_KEY_ID) {
+      setError('Payment gateway is not configured. Please set VITE_RAZORPAY_KEY_ID.');
+      return;
+    }
+
     const chunkAmount = queue[index];
     setCurrentPaymentIndex(index);
     setCurrentChunkAmount(chunkAmount);
@@ -311,6 +316,11 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
   };
 
   const handlePayment = () => {
+    if (!RAZORPAY_KEY_ID) {
+      setError('Payment gateway is not configured. Please set VITE_RAZORPAY_KEY_ID.');
+      return;
+    }
+
     const amount = parseFloat(investmentAmount);
     
     if (!amount || amount < 300) {

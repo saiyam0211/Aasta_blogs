@@ -16,22 +16,48 @@ const fetchConversionRate = async () => {
     return cachedConversionRate.value;
   }
 
-  try {
-    const response = await fetch('https://api.exchangerate.host/latest?base=INR&symbols=USD');
-    if (!response.ok) {
-      throw new Error(`Failed to fetch conversion rate: ${response.status}`);
-    }
-    const data = await response.json();
-    const usdRate = data?.rates?.USD;
-    if (usdRate) {
-      cachedConversionRate = {
-        value: usdRate,
-        timestamp: now
-      };
+  const hydrateCache = (rate) => {
+    cachedConversionRate = {
+      value: rate,
+      timestamp: now
+    };
+    return rate;
+  };
+
+  const tryProviders = [
+    async () => {
+      const response = await fetch('https://api.exchangerate.host/latest?base=INR&symbols=USD');
+      if (!response.ok) {
+        throw new Error(`Failed to fetch conversion rate: ${response.status}`);
+      }
+      const data = await response.json();
+      const usdRate = data?.rates?.USD;
+      if (!usdRate) {
+        throw new Error('INR->USD rate missing in exchangerate.host response');
+      }
+      return usdRate;
+    },
+    async () => {
+      const response = await fetch('https://open.er-api.com/v6/latest/INR');
+      if (!response.ok) {
+        throw new Error(`Fallback provider failed: ${response.status}`);
+      }
+      const data = await response.json();
+      const usdRate = data?.rates?.USD;
+      if (!usdRate) {
+        throw new Error('INR->USD rate missing in open.er-api response');
+      }
       return usdRate;
     }
-  } catch (error) {
-    console.error('Error fetching INR->USD conversion rate:', error);
+  ];
+
+  for (const provider of tryProviders) {
+    try {
+      const rate = await provider();
+      return hydrateCache(rate);
+    } catch (error) {
+      console.error('Error fetching INR->USD conversion rate:', error.message);
+    }
   }
 
   return cachedConversionRate.value || 0.01136;
