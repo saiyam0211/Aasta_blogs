@@ -93,37 +93,38 @@ export const PitchDeckSection = ({ slides }: PitchDeckSectionProps) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           {/* Left Side - Pitch Deck Display */}
-          <div className="relative flex flex-col justify-center items-center">
-            <div
-              className="bg-card-bg rounded-[1.5rem] sm:rounded-[2.5rem] border-2 border-primary/30 overflow-hidden relative w-full max-w-[1200px] lg:min-w-[700px]"
-              style={{
-                aspectRatio: "16 / 9",
-                height: "auto",
-              }}
-            >
-              <AnimatePresence mode="wait" initial={false}>
-                <motion.div
-                  key={currentSlide}
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={transition}
-                  className="absolute inset-0 flex items-center justify-center"
-                  style={{ willChange: 'transform, opacity' }}
-                >
-                  <img
-                    src={slides[currentSlide]?.image || '/placeholder-slide.png'}
-                    alt={slides[currentSlide]?.title || `Slide ${currentSlide + 1}`}
-                    className="w-full h-full object-contain rounded-xl"
-                    loading="lazy"
-                    style={{ aspectRatio: '16 / 9' }}
-                  />
-                </motion.div>
-              </AnimatePresence>
-            </div>
-            {/* Animated Progress Indicator */}
-            <div className="relative mt-4 w-[75%] flex items-center justify-center gap-3 z-10">
+          <div className="relative flex flex-col lg:flex-row mt-5 justify-center items-center gap-8">
+            <div className="relative w-full max-w-[1200px] lg:min-w-[700px]">
+              <div
+                className="bg-card-bg rounded-[1.5rem] sm:rounded-[2.5rem] border-2 border-primary/30 overflow-hidden relative w-full"
+                style={{
+                  aspectRatio: "16 / 9",
+                  height: "auto",
+                }}
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={currentSlide}
+                    variants={slideVariants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={transition}
+                    className="absolute inset-0 flex items-center justify-center"
+                    style={{ willChange: 'transform, opacity' }}
+                  >
+                    <img
+                      src={slides[currentSlide]?.image || '/placeholder-slide.png'}
+                      alt={slides[currentSlide]?.title || `Slide ${currentSlide + 1}`}
+                      className="w-full h-full object-contain rounded-xl"
+                      loading="lazy"
+                      style={{ aspectRatio: '16 / 9' }}
+                    />
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+              {/* Horizontal Indicator for mobile/tablet */}
+              <div className="relative mt-4 w-[85%] mx-auto flex items-center justify-center gap-3 z-10 lg:hidden">
                 {slides.map((_, idx) => (
                   <div
                     key={idx}
@@ -131,23 +132,22 @@ export const PitchDeckSection = ({ slides }: PitchDeckSectionProps) => {
                     style={{
                       minWidth: idx === currentSlide ? 60 : 28,
                       maxWidth: idx === currentSlide ? 120 : 44,
-                      transition: "min-width 0.3s, max-width 0.3s"
+                      transition: 'min-width 0.3s, max-width 0.3s'
                     }}
                   >
-                    {/* Inactive bar background */}
                     <div
-                      className={`absolute inset-0 h-3 rounded-full
-                        ${idx === currentSlide ? 'bg-primary/30' : 'bg-primary/20'}`}
+                      className={`absolute inset-0 h-3 rounded-full ${
+                        idx === currentSlide ? 'bg-primary/30' : 'bg-primary/20'
+                      }`}
                     ></div>
-                    {/* Animated progress bar for active step */}
                     {idx === currentSlide && isAutoPlaying && (
                       <motion.div
-                        key={currentSlide}
-                        initial={{ width: "0%" }}
-                        animate={{ width: "100%" }}
+                        key={`mobile-${currentSlide}`}
+                        initial={{ width: '0%' }}
+                        animate={{ width: '100%' }}
                         transition={{
                           duration: 5,
-                          ease: "linear",
+                          ease: 'linear'
                         }}
                         className="absolute inset-0 h-3 bg-primary rounded-full"
                         onAnimationComplete={() => {
@@ -159,16 +159,16 @@ export const PitchDeckSection = ({ slides }: PitchDeckSectionProps) => {
                         }}
                       />
                     )}
-                    {/* Static progress bar when paused */}
                     {idx === currentSlide && !isAutoPlaying && (
-                      <div className="absolute inset-0 h-3 bg-primary rounded-full" style={{ width: "100%" }} />
+                      <div className="absolute inset-0 h-3 bg-primary rounded-full" style={{ width: '100%' }} />
                     )}
                   </div>
                 ))}
-                {/* Pause/Play Button */}
+              </div>
+              <div className="mt-6 flex justify-center">
                 <button
                   onClick={toggleAutoPlay}
-                  className="ml-3 bg-primary/20 hover:bg-primary/30 border-2 border-primary/50 rounded-full p-2 transition-all duration-300 flex items-center justify-center"
+                  className="bg-primary/20 hover:bg-primary/30 border-2 border-primary/50 rounded-full p-3 transition-all duration-300 flex items-center justify-center"
                   aria-label={isAutoPlaying ? 'Pause' : 'Play'}
                 >
                   {isAutoPlaying ? (
@@ -177,6 +177,44 @@ export const PitchDeckSection = ({ slides }: PitchDeckSectionProps) => {
                     <Play className="w-5 h-5 text-primary" />
                   )}
                 </button>
+              </div>
+            </div>
+            {/* Animated Progress Indicator - desktop */}
+            <div className="hidden lg:flex flex-col gap-4 items-center justify-center">
+              {slides.map((_, idx) => (
+                <div
+                  key={idx}
+                  className="relative w-3 h-12 lg:h-14 rounded-full overflow-hidden"
+                >
+                  <div
+                    className={`absolute inset-0 rounded-full ${
+                      idx === currentSlide ? 'bg-primary/30' : 'bg-primary/15'
+                    }`}
+                  ></div>
+                  {idx === currentSlide && isAutoPlaying && (
+                    <motion.div
+                      key={`vertical-${currentSlide}`}
+                      initial={{ height: "0%" }}
+                      animate={{ height: "100%" }}
+                      transition={{
+                        duration: 5,
+                        ease: "linear",
+                      }}
+                      className="absolute top-0 left-0 w-full bg-primary rounded-full"
+                      onAnimationComplete={() => {
+                        if (currentSlide < slides.length - 1) {
+                          setCurrentSlide(currentSlide + 1);
+                        } else {
+                          setCurrentSlide(0);
+                        }
+                      }}
+                    />
+                  )}
+                  {idx === currentSlide && !isAutoPlaying && (
+                    <div className="absolute top-0 left-0 w-full h-full bg-primary rounded-full" />
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 

@@ -27,6 +27,8 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
   const [currentPaymentIndex, setCurrentPaymentIndex] = useState(0);
   const [currentChunkAmount, setCurrentChunkAmount] = useState(0);
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
+  const [showSplitConfirmationModal, setShowSplitConfirmationModal] = useState(false);
+  const [totalInvestmentSelected, setTotalInvestmentSelected] = useState(0);
 
   const quickAmounts = [5000, 10000, 25000, 50000, 100000, 250000];
 
@@ -129,6 +131,8 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
     setCurrentPaymentIndex(0);
     setCurrentChunkAmount(0);
     setAwaitingConfirmation(false);
+    setShowSplitConfirmationModal(false);
+    setTotalInvestmentSelected(0);
   };
 
   const handleClose = () => {
@@ -139,7 +143,17 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
   const handleConfirmPayment = () => {
     if (!paymentQueue.length) return;
     setError('');
+    setShowSplitConfirmationModal(false);
     processSplitPayment(paymentQueue, currentPaymentIndex);
+  };
+
+  const handleCancelSplit = () => {
+    setShowSplitConfirmationModal(false);
+    setAwaitingConfirmation(false);
+    setPaymentQueue([]);
+    setCurrentPaymentIndex(0);
+    setCurrentChunkAmount(0);
+    setError('Split payment was cancelled. You can adjust the amount or try again.');
   };
 
   const processSplitPayment = async (queue: number[], index: number) => {
@@ -189,11 +203,15 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
             setCurrentPaymentIndex(nextIndex);
             setCurrentChunkAmount(queue[nextIndex]);
             setAwaitingConfirmation(true);
+            if (queue.length > 1) {
+              setShowSplitConfirmationModal(true);
+            }
           } else {
             setSubmitted(true);
             setPaymentQueue([]);
             setCurrentChunkAmount(0);
             setAwaitingConfirmation(false);
+            setShowSplitConfirmationModal(false);
           }
         },
         prefill: {
@@ -208,7 +226,14 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
           ondismiss: function() {
             setLoading(false);
             setError('Payment was cancelled. You can resume to complete the remaining amount.');
-            setAwaitingConfirmation(true);
+            if (queue.length > 1) {
+              setAwaitingConfirmation(true);
+              setShowSplitConfirmationModal(true);
+            } else {
+              setAwaitingConfirmation(false);
+              setPaymentQueue([]);
+              setCurrentChunkAmount(0);
+            }
           },
         },
         config: {
@@ -239,7 +264,14 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
         const errorMessage = errorResponse.error?.description || errorResponse.error?.reason || 'Payment failed. Please try again.';
         setError(errorMessage);
         console.error('Payment failed:', errorResponse.error);
-        setAwaitingConfirmation(true);
+        if (queue.length > 1) {
+          setAwaitingConfirmation(true);
+          setShowSplitConfirmationModal(true);
+        } else {
+          setAwaitingConfirmation(false);
+          setPaymentQueue([]);
+          setCurrentChunkAmount(0);
+        }
       });
 
       razorpay.on('error', function (error: any) {
@@ -247,7 +279,14 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
         const errorMessage = error.error?.description || error.error?.reason || 'An error occurred during payment. Please try again.';
         setError(errorMessage);
         console.error('Razorpay error:', error);
-        setAwaitingConfirmation(true);
+        if (queue.length > 1) {
+          setAwaitingConfirmation(true);
+          setShowSplitConfirmationModal(true);
+        } else {
+          setAwaitingConfirmation(false);
+          setPaymentQueue([]);
+          setCurrentChunkAmount(0);
+        }
       });
 
       razorpay.open();
@@ -256,7 +295,14 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
       setLoading(false);
       const errorMessage = error?.message || 'An error occurred. Please try again.';
       setError(errorMessage);
-      setAwaitingConfirmation(true);
+      if (queue.length > 1) {
+        setAwaitingConfirmation(true);
+        setShowSplitConfirmationModal(true);
+      } else {
+        setAwaitingConfirmation(false);
+        setPaymentQueue([]);
+        setCurrentChunkAmount(0);
+      }
 
       if (errorMessage.includes('backend') || errorMessage.includes('Failed to fetch')) {
         setError('Backend server is not running. Please start the backend server on port 5000 and try again.');
@@ -292,9 +338,17 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
 
     setPaymentQueue(queue);
     setCurrentPaymentIndex(0);
-    setCurrentChunkAmount(queue[0]);
-    setAwaitingConfirmation(true);
+    setCurrentChunkAmount(queue[0] || 0);
     setError('');
+    setTotalInvestmentSelected(amount);
+
+    if (queue.length === 1) {
+      setAwaitingConfirmation(false);
+      processSplitPayment(queue, 0);
+    } else {
+      setAwaitingConfirmation(true);
+      setShowSplitConfirmationModal(true);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -303,20 +357,22 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
   };
 
   const splitInProgress = paymentQueue.length > 0 && !submitted;
+  const isSplitPayment = paymentQueue.length > 1;
   const totalSteps = paymentQueue.length || 1;
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fadeIn">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
-        onClick={handleClose}
-      />
+    <>
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fadeIn">
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
+          onClick={handleClose}
+        />
 
-      {/* Modal Content */}
-      <div className="investment-modal relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-card-bg via-card-bg/95 to-card-bg/90 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-12 border-4 border-primary/40 shadow-2xl animate-slideUp [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {/* Modal Content */}
+        <div className="investment-modal relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-card-bg via-card-bg/95 to-card-bg/90 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-12 border-4 border-primary/40 shadow-2xl animate-slideUp [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {/* Close Button */}
         <button
           onClick={handleClose}
@@ -334,7 +390,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
               MAKE YOUR INVESTMENT
             </h2>
             <p className="text-white/80 text-base sm:text-lg">
-              Fill out the form below and complete your secure payment to start your investment journey with AASTA
+              You’re not just Donating— you’re becoming part of our story. We need a few details to remember you as an early believer.
             </p>
           </div>
         )}
@@ -380,39 +436,6 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
-            {splitInProgress && (
-              <div className="bg-primary/10 border border-primary/40 rounded-xl p-4 text-white/80">
-                <p className="text-primary font-bold text-sm sm:text-base">
-                  Split Payment {awaitingConfirmation ? 'Confirmation' : 'In Progress'}
-                </p>
-                <p className="text-white/60 text-xs sm:text-sm mt-2">
-                  Step {currentPaymentIndex + 1} of {totalSteps} — Processing ₹{currentChunkAmount.toLocaleString('en-IN')}
-                </p>
-                <p className="text-white/50 text-xs sm:text-sm mt-1">
-                  Maximum per transaction is ₹{MAX_PAYMENT_PER_TRANSACTION.toLocaleString('en-IN')}. We’ll guide you through the remaining steps automatically.
-                </p>
-                {awaitingConfirmation ? (
-                  <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <p className="text-white/70 text-xs sm:text-sm">
-                      Click confirm to open the secure Razorpay checkout for this installment.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={handleConfirmPayment}
-                      disabled={loading}
-                      className="bg-primary text-black font-bold px-4 py-2 rounded-full hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Confirm & Pay ₹{currentChunkAmount.toLocaleString('en-IN')}
-                    </button>
-                  </div>
-                ) : (
-                  <p className="text-white/50 text-xs sm:text-sm mt-3">
-                    {loading ? 'Opening secure Razorpay checkout…' : 'Awaiting payment status…'}
-                  </p>
-                )}
-              </div>
-            )}
-
             {/* Investment Amount */}
             <div className="space-y-3">
               <label className="block text-white font-bold mb-3 text-sm sm:text-base flex items-center gap-2">
@@ -448,9 +471,9 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                   setInvestmentAmount(e.target.value);
                   setError('');
                 }}
-                placeholder="Or enter custom amount (min ₹1,000)"
+                placeholder="Or enter custom amount"
                 className="w-full bg-background/50 border-2 border-white/20 rounded-xl px-4 py-3.5 text-white placeholder-white/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-                min="1000"
+                min="300"
                 disabled={splitInProgress || loading}
                 required
               />
@@ -495,7 +518,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
             </div>
 
             {/* Phone Number */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <label className="block text-white font-bold mb-2 text-sm sm:text-base flex items-center gap-2">
                 <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -509,9 +532,8 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                 placeholder="Enter your phone number"
                 className="w-full bg-background/50 border-2 border-white/20 rounded-xl px-4 py-3.5 text-white placeholder-white/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                 disabled={splitInProgress || loading}
-                required
               />
-            </div>
+            </div> */}
 
             {/* LinkedIn URL */}
             <div className="space-y-2">
@@ -570,7 +592,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                   </svg>
                   <span>Processing Payment...</span>
                 </>
-              ) : splitInProgress ? (
+              ) : (isSplitPayment && splitInProgress) ? (
                 <>
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -596,7 +618,42 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
             </p>
           </form>
         )}
+        </div>
       </div>
-    </div>
+
+      {showSplitConfirmationModal && awaitingConfirmation && isSplitPayment && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={handleCancelSplit}></div>
+          <div className="relative z-10 w-full max-w-md bg-gradient-to-br from-card-bg to-card-bg/90 border-2 border-primary/40 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-4 text-center">
+            <p className="text-primary font-bold text-lg">Split Payment Confirmation</p>
+            <p className="text-white/80 text-sm sm:text-base">
+              Your total of ₹{totalInvestmentSelected.toLocaleString('en-IN')} will be processed in
+              chunks of up to ₹{MAX_PAYMENT_PER_TRANSACTION.toLocaleString('en-IN')}. We&apos;re ready for
+              step {currentPaymentIndex + 1} of {totalSteps}, amounting to ₹{currentChunkAmount.toLocaleString('en-IN')}.
+            </p>
+            <p className="text-white/60 text-xs">
+              Confirm to open the secure Razorpay checkout for this installment.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={handleCancelSplit}
+                className="w-full sm:w-auto bg-white/10 text-white border border-white/20 rounded-full px-4 py-2 text-sm font-semibold hover:bg-white/20 transition-all"
+              >
+                Change Amount
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmPayment}
+                disabled={loading}
+                className="w-full sm:w-auto bg-primary text-black font-bold px-5 py-2 rounded-full hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Confirm & Pay ₹{currentChunkAmount.toLocaleString('en-IN')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
