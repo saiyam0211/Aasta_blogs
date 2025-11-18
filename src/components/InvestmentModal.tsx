@@ -316,7 +316,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
     if (!amount || amount < 300) {
       setError('Minimum investment amount is ₹300');
       return;
-
+    }
 
     if (!validateLinkedInUrl(investorLinkedIn)) {
       setError('Please enter a valid LinkedIn URL (e.g., linkedin.com/in/yourname)');
