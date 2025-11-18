@@ -402,9 +402,9 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="font-dela text-3xl sm:text-4xl text-primary mb-4">Thank You for Your Investment!</h3>
+            <h3 className="font-dela text-3xl sm:text-4xl text-primary mb-4">Thank You for Your Donation!</h3>
             <p className="text-white/80 text-lg mb-6">
-              Your support means the world to us. Together, we're building a future where no food goes to waste.
+            Your generous donation is a powerful investment in our mission.
             </p>
             
             {/* Quotes */}
@@ -415,17 +415,10 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                 </p>
                 <p className="text-primary/80 text-sm">— Warren Buffett</p>
               </div>
-              
-              <div className="bg-primary/10 border-l-4 border-primary rounded-lg p-4 text-left">
-                <p className="text-white/90 text-base italic mb-2">
-                  "Every small step towards sustainability creates a ripple of positive change."
-                </p>
-                <p className="text-primary/80 text-sm">— AASTA Team</p>
-              </div>
             </div>
             
             <p className="text-white/60 text-sm mb-6">
-              Our team will contact you shortly with further details. Welcome to the AASTA family! 🎉
+              Our team will contact you shortly with further details. Welcome to the AASTA family!
             </p>
             <button
               onClick={handleClose}
