@@ -313,10 +313,10 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
   const handlePayment = () => {
     const amount = parseFloat(investmentAmount);
     
-    if (!amount || amount < 1000) {
-      setError('Minimum investment amount is ₹1,000');
+    if (!amount || amount < 300) {
+      setError('Minimum investment amount is ₹300');
       return;
-    }
+
 
     if (!validateLinkedInUrl(investorLinkedIn)) {
       setError('Please enter a valid LinkedIn URL (e.g., linkedin.com/in/yourname)');
@@ -471,7 +471,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                   setInvestmentAmount(e.target.value);
                   setError('');
                 }}
-                placeholder="Or enter custom amount"
+                placeholder="Enter custom amount"
                 className="w-full bg-background/50 border-2 border-white/20 rounded-xl px-4 py-3.5 text-white placeholder-white/50 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                 min="300"
                 disabled={splitInProgress || loading}

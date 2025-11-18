@@ -223,10 +223,12 @@ export const PitchDeckSection = ({ slides }: PitchDeckSectionProps) => {
             {/* <h3 className="font-dela text-2xl sm:text-3xl text-primary mb-6">
               Our Story
             </h3> */}
-            <div 
-              ref={scrollContainerRef}
-              className="space-y-3 max-h-[450px] sm:max-h-[520px] overflow-y-auto pr-2 custom-scrollbar"
-            >
+            <div className="relative">
+              <div 
+                ref={scrollContainerRef}
+                className="space-y-3 max-h-[450px] sm:max-h-[520px] overflow-y-auto pr-6 -mr-4 custom-scrollbar"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
               {slides.map((slide, index) => (
                 <button
                   key={slide.id}
@@ -269,6 +271,8 @@ export const PitchDeckSection = ({ slides }: PitchDeckSectionProps) => {
                   </div>
                 </button>
               ))}
+              </div>
+              <div className="pointer-events-none absolute top-0 bottom-0 right-0 w-4 bg-gradient-to-l from-background to-transparent rounded-r-2xl hidden sm:block"></div>
             </div>
           </div>
         </div>

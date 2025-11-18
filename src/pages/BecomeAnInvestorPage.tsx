@@ -436,7 +436,7 @@ export const BecomeAnInvestorPage = () => {
                   {/* Step Indicators */}
                   <div className="relative flex justify-between items-center -mt-14 sm:-mt-16 mb-8">
                     {/* $1K Step */}
-                    <div className="flex flex-col items-center relative z-20" style={{ width: '20%' }}>
+                    <div className="flex flex-col items-center relative z-20" style={{ width: '20%' , marginLeft: '10%' }}>
                       <div className={`w-12 h-12 sm:w-16 sm:h-16 ${milestone1K ? 'bg-primary' : 'bg-background'} rounded-full flex items-center justify-center shadow-xl border-4 ${milestone1K ? 'border-background' : 'border-primary'} mb-4`}>
                         <CheckCircle className={`w-7 h-7 sm:w-9 sm:h-9 ${milestone1K ? 'text-black' : 'text-primary'}`} strokeWidth={3} />
                       </div>
@@ -456,7 +456,7 @@ export const BecomeAnInvestorPage = () => {
                     </div>
 
                     {/* $5K Step */}
-                    <div className="flex flex-col items-center relative z-20" style={{ width: '20%', marginLeft: 'auto' }}>
+                    <div className="flex flex-col items-center relative z-20" style={{ width: '20%', marginLeft: '80%' }}>
                       <div className={`w-12 h-12 sm:w-16 sm:h-16 ${milestone5K ? 'bg-primary' : 'bg-background'} rounded-full flex items-center justify-center shadow-xl border-4 ${milestone5K ? 'border-background' : 'border-primary'} mb-4`}>
                         <CheckCircle className={`w-7 h-7 sm:w-9 sm:h-9 ${milestone5K ? 'text-black' : 'text-primary'}`} strokeWidth={3} />
                       </div>
@@ -486,8 +486,52 @@ export const BecomeAnInvestorPage = () => {
         </div>
       </section>
 
-      {/* Fundraising Progress Section */}
-      <section className="py-10 sm:py-16 bg-background relative overflow-hidden">
+
+
+      {/* Investment Modal */}
+      <InvestmentModal
+        isOpen={isInvestmentModalOpen}
+        onClose={() => setIsInvestmentModalOpen(false)}
+      />
+
+
+      {/* How It Works Section */}
+      <section className="py-10 sm:py-14 bg-background z-50 mt-12 sm:mt-20">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <h2 className="font-dela text-5xl sm:text-5xl md:text-7xl text-primary z-50 uppercase mb-24">
+              We're on a Mission <br /> to End Food Waste.
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-12">
+            {/* Step 1 */}
+            <div className="bg-card-bg rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-10 relative overflow-hidden">
+              <p className="text-white/80 text-base sm:text-xl leading-relaxed">
+                India throws away over <b className="text-primary">67 million tonnes of food every year</b>, even when millions go hungry.
+                Restaurants dump perfectly edible meals daily — not because it’s bad, but because it’s left over.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="bg-card-bg rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-10 relative overflow-hidden">
+              <p className="text-white/80 text-base sm:text-xl leading-relaxed">
+                Aasta bridges that gap — collecting safe, untouched surplus food from verified restaurants, and offering it to people at <b className="text-primary">half the price</b> through our app and local points.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="bg-card-bg rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-10 relative overflow-hidden">
+              <p className="text-white/80 text-base sm:text-xl leading-relaxed">
+                We make sure <b className="text-primary">every meal saved counts</b> — for the planet, for people, for the restaurant, and for you.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+            {/* Fundraising Progress Section */}
+            <section className="py-10 sm:py-16 bg-background relative overflow-hidden">
         {/* Enhanced Background decorations */}
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-20 left-10 w-96 h-96 bg-primary rounded-full blur-3xl animate-pulse"></div>
@@ -598,48 +642,6 @@ export const BecomeAnInvestorPage = () => {
         </div>
       </section>
 
-      {/* Investment Modal */}
-      <InvestmentModal
-        isOpen={isInvestmentModalOpen}
-        onClose={() => setIsInvestmentModalOpen(false)}
-      />
-
-
-      {/* How It Works Section */}
-      <section className="py-10 sm:py-14 bg-background z-50 mt-12 sm:mt-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <h2 className="font-dela text-5xl sm:text-5xl md:text-7xl text-primary z-50 uppercase mb-24">
-              We're on a Mission <br /> to End Food Waste.
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-12">
-            {/* Step 1 */}
-            <div className="bg-card-bg rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-10 relative overflow-hidden">
-              <p className="text-white/80 text-base sm:text-xl leading-relaxed">
-                India throws away over <b className="text-primary">67 million tonnes of food every year</b>, even when millions go hungry.
-                Restaurants dump perfectly edible meals daily — not because it’s bad, but because it’s left over.
-              </p>
-            </div>
-
-            {/* Step 2 */}
-            <div className="bg-card-bg rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-10 relative overflow-hidden">
-              <p className="text-white/80 text-base sm:text-xl leading-relaxed">
-                Aasta bridges that gap — collecting safe, untouched surplus food from verified restaurants, and offering it to people at <b className="text-primary">half the price</b> through our app and local points.
-              </p>
-            </div>
-
-            {/* Step 3 */}
-            <div className="bg-card-bg rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-10 relative overflow-hidden">
-              <p className="text-white/80 text-base sm:text-xl leading-relaxed">
-                We make sure <b className="text-primary">every meal saved counts</b> — for the planet, for people, for the restaurant, and for you.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Pitch Deck Section */}
       <PitchDeckSection slides={pitchDeckSlides} />
 
@@ -696,6 +698,15 @@ export const BecomeAnInvestorPage = () => {
             </div>
           </div>
         </div>
+        <div className="flex justify-center mt-20">
+              <button
+                type="button"
+                onClick={() => setIsInvestmentModalOpen(true)}
+                className="w-full max-w-xs bg-[#fcfab2] border-b-8 border-r-4 border-t-2 border-black rounded-full py-4 sm:py-6 px-8 text-black font-black text-xl sm:text-2xl hover:scale-105 transition-transform"
+              >
+                Invest in Aasta
+              </button>
+            </div>
       </section>
 
 
