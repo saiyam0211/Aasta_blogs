@@ -101,7 +101,7 @@ export const BecomeAnInvestorPage = () => {
 
   const totalAmountUSD = convertINRtoUSD(investmentData.totalAmount);
   const rawProgress = (totalAmountUSD / GOAL_AMOUNT_USD) * 100;
-  const progressPercentage = Math.min(Math.max(rawProgress, 50), 100);
+  const progressPercentage = Math.min(Math.max(rawProgress, 4), 100);
   const [hasProgressAnimated, setHasProgressAnimated] = useState(false);
   const progressSectionRef = useRef<HTMLDivElement | null>(null);
   const shimmerStyles = `
@@ -362,19 +362,19 @@ export const BecomeAnInvestorPage = () => {
                   )}
                 </div>
                 <div className="grid grid-cols-3 gap-3 text-center text-sm text-primary font-semibold">
-                  <div className="space-y-1">
+                  <div className="space-y-1" style={{ position: 'absolute', left: '10%', transform: 'translateX(-50%)' }}>
                     <div className={`mx-auto w-10 h-10 rounded-full border-2 flex items-center justify-center ${milestone1K ? 'bg-primary text-black border-background' : 'bg-background text-primary border-primary'}`}>
                       <CheckCircle className="w-5 h-5" strokeWidth={3} />
                     </div>
                     <p>$1K</p>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1" style={{ position: 'absolute', left: '60%', transform: 'translateX(-50%)' }}>
                     <div className={`mx-auto w-10 h-10 rounded-full border-2 flex items-center justify-center ${milestone3K ? 'bg-primary text-black border-background' : 'bg-background text-primary border-primary'}`}>
                       <CheckCircle className="w-5 h-5" strokeWidth={3} />
                     </div>
                     <p>$3K</p>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1" style={{ position: 'absolute', left: '95%', transform: 'translateX(-50%)' }}>
                     <div className={`mx-auto w-10 h-10 rounded-full border-2 flex items-center justify-center ${milestone5K ? 'bg-primary text-black border-background' : 'bg-background text-primary border-primary'}`}>
                       <CheckCircle className="w-5 h-5" strokeWidth={3} />
                     </div>
@@ -425,7 +425,7 @@ export const BecomeAnInvestorPage = () => {
                         <div
                           className="pointer-events-none absolute top-0 bottom-0 w-20 bg-gradient-to-r from-transparent via-primary/50 to-transparent"
                           style={{
-                            left: `calc(${animatedProgress}% - 30px)`,
+                            left: `calc(${animatedProgress}% - 40px)`,
                             animation: 'investorReach 1.5s ease-in-out infinite',
                           }}
                         ></div>
