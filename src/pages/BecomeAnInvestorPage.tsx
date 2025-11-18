@@ -47,7 +47,7 @@ export const BecomeAnInvestorPage = () => {
 
   const fetchInvestmentData = useCallback(async () => {
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://aasta-main-website.onrender.com';
       const response = await fetch(`${backendUrl}/api/payments/data`);
       if (response.ok) {
         const result = await response.json();

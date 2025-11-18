@@ -91,7 +91,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
 
   // Create Razorpay order (calls backend API)
   const createRazorpayOrder = async (amount: number) => {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://aasta-main-website.onrender.com';
     
     try {
       const response = await fetch(`${backendUrl}/api/payments/create-order`, {
@@ -177,7 +177,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
         handler: async function (response: any) {
           setLoading(false);
 
-          const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+          const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://aasta-main-website.onrender.com';
           try {
             await fetch(`${backendUrl}/api/payments/verify`, {
               method: 'POST',
