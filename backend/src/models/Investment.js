@@ -14,8 +14,8 @@ const investmentSchema = new mongoose.Schema({
   },
   investorPhone: {
     type: String,
-    required: true,
-    trim: true
+    trim: true,
+    default: ''
   },
   investorLinkedIn: {
     type: String,
@@ -25,7 +25,7 @@ const investmentSchema = new mongoose.Schema({
   investmentAmount: {
     type: Number,
     required: true,
-    min: 1000 // Minimum ₹1,000
+    min: 300 // Minimum ₹300 aligned with frontend
   },
   currency: {
     type: String,
