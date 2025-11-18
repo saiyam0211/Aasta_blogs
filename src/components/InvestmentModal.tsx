@@ -390,7 +390,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
               MAKE YOUR INVESTMENT
             </h2>
             <p className="text-white/80 text-base sm:text-lg">
-              You’re not just Donating— you’re becoming part of our story. We need a few details to remember you as an early believer.
+              You’re not just Donating — you’re becoming part of our story. We need a few details to remember you as an early believer.
             </p>
           </div>
         )}
