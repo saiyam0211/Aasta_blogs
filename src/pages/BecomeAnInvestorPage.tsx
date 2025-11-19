@@ -332,7 +332,7 @@ export const BecomeAnInvestorPage = () => {
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center">
             <h1 className="font-dela text-4xl sm:text-6xl md:text-[8rem] text-[#d0ee8a] mb-6 mt-20 sm:mt-28 md:mt-32 leading-tight">
-              BECOME OUR
+              BECOME AN
               <br />
               INVESTOR
             </h1>
