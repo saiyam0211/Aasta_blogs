@@ -223,10 +223,10 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
       });
     }
 
-    // Save investment to database
-    const investment = new Investment({
-      investorName: investorName.trim(),
-      investorEmail: investorEmail.trim().toLowerCase(),
+    // Prepare investment data with proper validation
+    const investmentData = {
+      investorName: (investorName || '').trim(),
+      investorEmail: (investorEmail || '').trim().toLowerCase(),
       investorPhone: investorPhone ? investorPhone.trim() : '',
       investorLinkedIn: investorLinkedIn ? investorLinkedIn.trim() : '',
       investmentAmount: Number(investmentAmount),
@@ -235,7 +235,21 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
       razorpayPaymentId: razorpay_payment_id,
       razorpaySignature: razorpay_signature,
       paymentStatus: 'completed'
+    };
+
+    // Validate investment amount is a valid number
+    if (isNaN(investmentData.investmentAmount) || investmentData.investmentAmount < 300) {
+      console.error('Invalid investment amount:', investmentData.investmentAmount);
+      return next(new CustomError('Investment amount must be at least ₹300', 400));
+    }
+
+    console.log('Attempting to save investment with data:', {
+      ...investmentData,
+      razorpaySignature: investmentData.razorpaySignature.substring(0, 20) + '...'
     });
+
+    // Save investment to database
+    const investment = new Investment(investmentData);
 
     await investment.save();
     console.log('Investment saved successfully:', investment._id);
@@ -250,12 +264,21 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
   } catch (error) {
     console.error('Error in verifyPayment:', error);
     if (error.name === 'ValidationError') {
-      return next(new CustomError(`Validation error: ${error.message}`, 400));
+      // Extract detailed validation errors
+      const validationErrors = Object.values(error.errors || {}).map((err: any) => {
+        return `${err.path}: ${err.message}`;
+      }).join(', ');
+      console.error('Validation errors:', validationErrors);
+      console.error('Full error object:', JSON.stringify(error.errors, null, 2));
+      return next(new CustomError(`Validation failed: ${validationErrors || error.message}`, 400));
     }
     if (error.code === 11000) {
-      return next(new CustomError('Duplicate payment detected', 400));
+      const duplicateField = Object.keys(error.keyPattern || {})[0];
+      console.error('Duplicate payment detected on field:', duplicateField);
+      return next(new CustomError(`Duplicate payment detected: ${duplicateField} already exists`, 400));
     }
-    return next(new CustomError('Failed to save investment', 500));
+    console.error('Unexpected error:', error.stack);
+    return next(new CustomError(`Failed to save investment: ${error.message}`, 500));
   }
 });
 

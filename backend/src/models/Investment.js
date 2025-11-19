@@ -10,7 +10,13 @@ const investmentSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    lowercase: true
+    lowercase: true,
+    validate: {
+      validator: function(v) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      },
+      message: 'Please provide a valid email address'
+    }
   },
   investorPhone: {
     type: String,
