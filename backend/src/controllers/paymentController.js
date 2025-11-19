@@ -138,69 +138,125 @@ const createOrder = asyncHandler(async (req, res, next) => {
 
 // Verify payment signature and save investment
 const verifyPayment = asyncHandler(async (req, res, next) => {
-  const { 
-    razorpay_order_id, 
-    razorpay_payment_id, 
-    razorpay_signature,
-    investorName,
-    investorEmail,
-    investorPhone,
-    investorLinkedIn,
-    investmentAmount
-  } = req.body;
+  try {
+    const { 
+      razorpay_order_id, 
+      razorpay_payment_id, 
+      razorpay_signature,
+      investorName,
+      investorEmail,
+      investorPhone,
+      investorLinkedIn,
+      investmentAmount
+    } = req.body;
 
-  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-    return next(new CustomError('Payment verification data is required', 400));
-  }
-
-  const crypto = require('crypto');
-  const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET || '');
-  hmac.update(razorpay_order_id + '|' + razorpay_payment_id);
-  const generatedSignature = hmac.digest('hex');
-
-  const isSignatureValid = generatedSignature === razorpay_signature;
-
-  if (!isSignatureValid) {
-    return next(new CustomError('Invalid payment signature', 400));
-  }
-
-  // Check if investment already exists
-  const existingInvestment = await Investment.findOne({ 
-    razorpayPaymentId: razorpay_payment_id 
-  });
-
-  if (existingInvestment) {
-    return res.status(200).json({
-      success: true,
-      message: 'Payment already verified',
-      paymentId: razorpay_payment_id,
-      orderId: razorpay_order_id
+    console.log('Payment verification request received:', {
+      razorpay_order_id,
+      razorpay_payment_id,
+      has_signature: !!razorpay_signature,
+      investorName,
+      investorEmail,
+      investmentAmount
     });
+
+    // Validate required Razorpay fields
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      console.error('Missing Razorpay verification data:', {
+        has_order_id: !!razorpay_order_id,
+        has_payment_id: !!razorpay_payment_id,
+        has_signature: !!razorpay_signature
+      });
+      return next(new CustomError('Payment verification data is required', 400));
+    }
+
+    // Validate required investor fields
+    if (!investorName || !investorEmail) {
+      console.error('Missing investor data:', {
+        has_name: !!investorName,
+        has_email: !!investorEmail
+      });
+      return next(new CustomError('Investor name and email are required', 400));
+    }
+
+    if (!investmentAmount || investmentAmount < 300) {
+      console.error('Invalid investment amount:', investmentAmount);
+      return next(new CustomError('Investment amount must be at least ₹300', 400));
+    }
+
+    // Verify signature
+    const crypto = require('crypto');
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    
+    if (!keySecret) {
+      console.error('RAZORPAY_KEY_SECRET is not set');
+      return next(new CustomError('Payment gateway configuration error', 500));
+    }
+
+    const hmac = crypto.createHmac('sha256', keySecret);
+    hmac.update(razorpay_order_id + '|' + razorpay_payment_id);
+    const generatedSignature = hmac.digest('hex');
+
+    const isSignatureValid = generatedSignature === razorpay_signature;
+
+    if (!isSignatureValid) {
+      console.error('Signature verification failed:', {
+        generated: generatedSignature.substring(0, 20) + '...',
+        received: razorpay_signature.substring(0, 20) + '...'
+      });
+      return next(new CustomError('Invalid payment signature', 400));
+    }
+
+    console.log('Signature verified successfully');
+
+    // Check if investment already exists
+    const existingInvestment = await Investment.findOne({ 
+      razorpayPaymentId: razorpay_payment_id 
+    });
+
+    if (existingInvestment) {
+      console.log('Payment already verified, returning existing investment');
+      return res.status(200).json({
+        success: true,
+        message: 'Payment already verified',
+        paymentId: razorpay_payment_id,
+        orderId: razorpay_order_id
+      });
+    }
+
+    // Save investment to database
+    const investment = new Investment({
+      investorName: investorName.trim(),
+      investorEmail: investorEmail.trim().toLowerCase(),
+      investorPhone: investorPhone ? investorPhone.trim() : '',
+      investorLinkedIn: investorLinkedIn ? investorLinkedIn.trim() : '',
+      investmentAmount: Number(investmentAmount),
+      currency: 'INR',
+      razorpayOrderId: razorpay_order_id,
+      razorpayPaymentId: razorpay_payment_id,
+      razorpaySignature: razorpay_signature,
+      paymentStatus: 'completed'
+    });
+
+    await investment.save();
+    console.log('Investment saved successfully:', investment._id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Payment verified and investment saved successfully',
+      paymentId: razorpay_payment_id,
+      orderId: razorpay_order_id,
+      investmentId: investment._id
+    });
+  } catch (error) {
+    console.error('Error in verifyPayment:', error);
+    if (error.name === 'ValidationError') {
+      return next(new CustomError(`Validation error: ${error.message}`, 400));
+    }
+    if (error.code === 11000) {
+      return next(new CustomError('Duplicate payment detected', 400));
+    }
+    return next(new CustomError('Failed to save investment', 500));
   }
-
-  // Save investment to database
-  const investment = new Investment({
-    investorName,
-    investorEmail,
-    investorPhone,
-    investorLinkedIn: investorLinkedIn || '',
-    investmentAmount,
-    currency: 'INR',
-    razorpayOrderId: razorpay_order_id,
-    razorpayPaymentId: razorpay_payment_id,
-    razorpaySignature: razorpay_signature,
-    paymentStatus: 'completed'
-  });
-
-  await investment.save();
-
-  res.status(200).json({
-    success: true,
-    message: 'Payment verified and investment saved successfully',
-    paymentId: razorpay_payment_id,
-    orderId: razorpay_order_id,
-    investmentId: investment._id
-  });
 });
 
 // Get recent investors and total amount raised

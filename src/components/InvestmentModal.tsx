@@ -184,7 +184,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
 
           const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://aasta-main-website.onrender.com';
           try {
-            await fetch(`${backendUrl}/api/payments/verify`, {
+            const verifyResponse = await fetch(`${backendUrl}/api/payments/verify`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -193,30 +193,50 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
                 razorpay_signature: response.razorpay_signature,
                 investorName,
                 investorEmail,
-                investorPhone,
-                investorLinkedIn,
+                investorPhone: investorPhone || '',
+                investorLinkedIn: investorLinkedIn || '',
                 investmentAmount: chunkAmount,
               }),
             });
-            window.dispatchEvent(new Event('investment-updated'));
-          } catch (error) {
-            console.error('Error verifying payment:', error);
-          }
 
-          const nextIndex = index + 1;
-          if (nextIndex < queue.length) {
-            setCurrentPaymentIndex(nextIndex);
-            setCurrentChunkAmount(queue[nextIndex]);
+            const verifyData = await verifyResponse.json();
+            
+            if (!verifyResponse.ok) {
+              const errorMessage = verifyData.message || verifyData.error || 'Failed to verify payment';
+              console.error('Payment verification failed:', errorMessage);
+              setError(errorMessage);
+              setAwaitingConfirmation(true);
+              if (queue.length > 1) {
+                setShowSplitConfirmationModal(true);
+              }
+              return;
+            }
+
+            console.log('Payment verified and saved:', verifyData);
+            window.dispatchEvent(new Event('investment-updated'));
+
+            const nextIndex = index + 1;
+            if (nextIndex < queue.length) {
+              setCurrentPaymentIndex(nextIndex);
+              setCurrentChunkAmount(queue[nextIndex]);
+              setAwaitingConfirmation(true);
+              if (queue.length > 1) {
+                setShowSplitConfirmationModal(true);
+              }
+            } else {
+              setSubmitted(true);
+              setPaymentQueue([]);
+              setCurrentChunkAmount(0);
+              setAwaitingConfirmation(false);
+              setShowSplitConfirmationModal(false);
+            }
+          } catch (error: any) {
+            console.error('Error verifying payment:', error);
+            setError(error?.message || 'Failed to verify payment. Please contact support.');
             setAwaitingConfirmation(true);
             if (queue.length > 1) {
               setShowSplitConfirmationModal(true);
             }
-          } else {
-            setSubmitted(true);
-            setPaymentQueue([]);
-            setCurrentChunkAmount(0);
-            setAwaitingConfirmation(false);
-            setShowSplitConfirmationModal(false);
           }
         },
         prefill: {
