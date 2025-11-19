@@ -80,8 +80,13 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
       has_signature: !!razorpay_signature,
       investorName,
       investorEmail,
-      investmentAmount
+      investorPhone: investorPhone || '(not provided)',
+      investorLinkedIn: investorLinkedIn || '(not provided)',
+      investmentAmount,
+      investmentAmountType: typeof investmentAmount
     });
+    
+    console.log('Full request body:', JSON.stringify(req.body, null, 2));
 
     // Validate required Razorpay fields
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
@@ -147,25 +152,39 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
       });
     }
 
-    // Prepare investment data with proper validation
+    // Prepare and validate investment data
+    const trimmedName = (investorName || '').trim();
+    const trimmedEmail = (investorEmail || '').trim().toLowerCase();
+    const trimmedPhone = investorPhone ? investorPhone.trim() : '';
+    const trimmedLinkedIn = investorLinkedIn ? investorLinkedIn.trim() : '';
+    const numAmount = Number(investmentAmount);
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      console.error('Invalid email format:', trimmedEmail);
+      return next(new CustomError('Please provide a valid email address', 400));
+    }
+
+    // Validate investment amount is a valid number
+    if (isNaN(numAmount) || numAmount < 300) {
+      console.error('Invalid investment amount:', numAmount, 'Type:', typeof numAmount);
+      return next(new CustomError('Investment amount must be at least ₹300', 400));
+    }
+
+    // Prepare investment data
     const investmentData = {
-      investorName: (investorName || '').trim(),
-      investorEmail: (investorEmail || '').trim().toLowerCase(),
-      investorPhone: investorPhone ? investorPhone.trim() : '',
-      investorLinkedIn: investorLinkedIn ? investorLinkedIn.trim() : '',
-      investmentAmount: Number(investmentAmount),
+      investorName: trimmedName,
+      investorEmail: trimmedEmail,
+      investorPhone: trimmedPhone,
+      investorLinkedIn: trimmedLinkedIn,
+      investmentAmount: numAmount,
       currency: 'INR',
       razorpayOrderId: razorpay_order_id,
       razorpayPaymentId: razorpay_payment_id,
       razorpaySignature: razorpay_signature,
       paymentStatus: 'completed'
     };
-
-    // Validate investment amount is a valid number
-    if (isNaN(investmentData.investmentAmount) || investmentData.investmentAmount < 300) {
-      console.error('Invalid investment amount:', investmentData.investmentAmount);
-      return next(new CustomError('Investment amount must be at least ₹300', 400));
-    }
 
     console.log('Attempting to save investment with data:', {
       investorName: investmentData.investorName,
@@ -183,18 +202,32 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
     // Save investment to database
     const investment = new Investment(investmentData);
     
-    // Validate before saving
-    const validationError = investment.validateSync();
-    if (validationError) {
-      console.error('Validation error before save:', validationError);
-      const validationErrors = Object.values(validationError.errors || {}).map((err) => {
-        return `${err.path}: ${err.message}`;
-      }).join(', ');
-      return next(new CustomError(`Validation failed: ${validationErrors}`, 400));
-    }
+    try {
+      // Validate before saving
+      const validationError = investment.validateSync();
+      if (validationError) {
+        console.error('Validation error before save:', validationError);
+        const validationErrors = Object.values(validationError.errors || {}).map((err) => {
+          return `${err.path}: ${err.message}`;
+        }).join(', ');
+        console.error('Detailed validation errors:', validationErrors);
+        return next(new CustomError(`Validation failed: ${validationErrors}`, 400));
+      }
 
-    await investment.save();
-    console.log('Investment saved successfully:', investment._id);
+      await investment.save();
+      console.log('Investment saved successfully:', investment._id);
+    } catch (saveError) {
+      console.error('Error during save:', saveError);
+      if (saveError.name === 'ValidationError') {
+        const validationErrors = Object.values(saveError.errors || {}).map((err) => {
+          return `${err.path}: ${err.message}`;
+        }).join(', ');
+        console.error('Validation errors from save:', validationErrors);
+        return next(new CustomError(`Validation failed: ${validationErrors || saveError.message}`, 400));
+      }
+      // Re-throw if it's not a validation error
+      throw saveError;
+    }
 
     res.status(200).json({
       success: true,
