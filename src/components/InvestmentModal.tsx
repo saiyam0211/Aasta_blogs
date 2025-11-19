@@ -426,33 +426,33 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
         )}
 
         {submitted ? (
-          <div className="text-center py-12 animate-fadeIn">
-            <div className="w-24 h-24 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
-              <svg className="w-12 h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="text-center py-6 sm:py-12 animate-fadeIn">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-br from-primary/30 to-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 animate-bounce">
+              <svg className="w-8 h-8 sm:w-12 sm:h-12 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h3 className="font-dela text-3xl sm:text-4xl text-primary mb-4">Thank You for Your Donation!</h3>
-            <p className="text-white/80 text-lg mb-6">
+            <h3 className="font-dela text-2xl sm:text-3xl md:text-4xl text-primary mb-3 sm:mb-4 px-2">Thank You for Your Donation!</h3>
+            <p className="text-white/80 text-sm sm:text-base md:text-lg mb-4 sm:mb-6 px-2">
             Your generous donation is a powerful investment in our mission.
             </p>
             
             {/* Quotes */}
-            <div className="max-w-2xl mx-auto space-y-4 mb-6">
-              <div className="bg-primary/10 border-l-4 border-primary rounded-lg p-4 text-left">
-                <p className="text-white/90 text-base italic mb-2">
+            <div className="max-w-2xl mx-auto space-y-4 mb-4 sm:mb-6 px-2">
+              <div className="bg-primary/10 border-l-4 border-primary rounded-lg p-3 sm:p-4 text-left">
+                <p className="text-white/90 text-sm sm:text-base italic mb-2">
                   "The best investment you can make is in yourself and in causes that matter."
                 </p>
-                <p className="text-primary/80 text-sm">— Warren Buffett</p>
+                <p className="text-primary/80 text-xs sm:text-sm">— Warren Buffett</p>
               </div>
             </div>
             
-            <p className="text-white/60 text-sm mb-6">
+            <p className="text-white/60 text-xs sm:text-sm mb-4 sm:mb-6 px-4">
               Our team will contact you shortly with further details. Welcome to the AASTA family!
             </p>
             <button
               onClick={handleClose}
-              className="bg-primary text-black font-bold px-6 py-3 rounded-full hover:scale-105 transition-transform"
+              className="bg-primary text-black font-bold px-4 py-2.5 sm:px-6 sm:py-3 rounded-full hover:scale-105 transition-transform text-sm sm:text-base w-full sm:w-auto max-w-xs sm:max-w-none mx-auto"
             >
               Close and Continue Exploring
             </button>
