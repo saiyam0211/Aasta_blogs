@@ -265,7 +265,7 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
     console.error('Error in verifyPayment:', error);
     if (error.name === 'ValidationError') {
       // Extract detailed validation errors
-      const validationErrors = Object.values(error.errors || {}).map((err: any) => {
+      const validationErrors = Object.values(error.errors || {}).map((err) => {
         return `${err.path}: ${err.message}`;
       }).join(', ');
       console.error('Validation errors:', validationErrors);
