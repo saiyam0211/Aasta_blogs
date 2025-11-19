@@ -59,8 +59,9 @@ const paymentVerificationValidation = [
     .isEmail()
     .withMessage('Valid investor email is required'),
   body('investorPhone')
-    .notEmpty()
-    .withMessage('Investor phone is required'),
+    .optional()
+    .isString()
+    .withMessage('Investor phone must be a string'),
   body('investmentAmount')
     .notEmpty()
     .isNumeric()
