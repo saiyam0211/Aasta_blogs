@@ -48,6 +48,30 @@ const fetchConversionRate = async () => {
         throw new Error('INR->USD rate missing in open.er-api response');
       }
       return usdRate;
+    },
+    async () => {
+      const response = await fetch('https://v6.exchangerate-api.com/v6/1bb5e07e655515d03eb51605/latest/INR');
+      if (!response.ok) {
+        throw new Error(`Second fallback provider failed: ${response.status}`);
+      }
+      const data = await response.json();
+      const usdRate = data?.conversion_rates?.USD;
+      if (!usdRate) {
+        throw new Error('INR->USD rate missing in exchangerate-api response');
+      }
+      return usdRate;
+    },
+    async () => {
+      const response = await fetch('https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/inr/usd.json');
+      if (!response.ok) {
+        throw new Error(`Final fallback provider failed: ${response.status}`);
+      }
+      const data = await response.json();
+      const usdRate = data?.usd;
+      if (!usdRate) {
+        throw new Error('INR->USD rate missing in Fawaz Ahmed open currency API response');
+      }
+      return usdRate;
     }
   ];
 

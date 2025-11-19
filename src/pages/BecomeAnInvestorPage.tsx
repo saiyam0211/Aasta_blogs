@@ -12,6 +12,9 @@ interface Investor {
   investmentAmount: number;
 }
 
+const INVESTMENT_DATA_CACHE_KEY = 'aasta-investment-data-v1';
+const INVESTMENT_DATA_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 export const BecomeAnInvestorPage = () => {
   const [isInvestmentModalOpen, setIsInvestmentModalOpen] = useState(false);
   const [investmentData, setInvestmentData] = useState<{
@@ -58,9 +61,22 @@ export const BecomeAnInvestorPage = () => {
             totalInvestors,
             recentInvestors
           });
+          localStorage.setItem(
+            INVESTMENT_DATA_CACHE_KEY,
+            JSON.stringify({
+              timestamp: Date.now(),
+              data: {
+                totalAmount,
+                totalInvestors,
+                recentInvestors,
+                conversionRate: rate ?? conversionRate
+              }
+            })
+          );
           if (rate) {
             setConversionRate(rate);
           }
+          setLoading(false);
         }
       }
     } catch (error) {
@@ -72,6 +88,26 @@ export const BecomeAnInvestorPage = () => {
 
   // Fetch investment data
   useEffect(() => {
+    try {
+      const cachedString = localStorage.getItem(INVESTMENT_DATA_CACHE_KEY);
+      if (cachedString) {
+        const cached = JSON.parse(cachedString);
+        if (cached?.timestamp && Date.now() - cached.timestamp < INVESTMENT_DATA_CACHE_TTL) {
+          setInvestmentData({
+            totalAmount: cached.data.totalAmount,
+            totalInvestors: cached.data.totalInvestors,
+            recentInvestors: cached.data.recentInvestors || []
+          });
+          if (cached.data.conversionRate) {
+            setConversionRate(cached.data.conversionRate);
+          }
+          setLoading(false);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to restore cached investment data', error);
+    }
+
     fetchInvestmentData();
     // Refresh data every 10 seconds
     const interval = setInterval(fetchInvestmentData, 10000);
