@@ -7,6 +7,7 @@ import { HowToOrderSection } from './components/HowToOrderSection';
 import { FAQSection } from './components/FAQSection';
 import { Footer } from './components/Footer';
 import { DownloadModal } from './components/DownloadModal';
+import { SplashScreen } from './components/SplashScreen';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { BlogPage } from './pages/BlogPage';
 import { AdminPage } from './pages/AdminPage';
@@ -16,6 +17,7 @@ import { BecomeAnInvestorPage } from './pages/BecomeAnInvestorPage';
 function App() {
   return (
     <BrowserRouter>
+      <SplashScreen />
       <div className="min-h-screen bg-background">
         <Routes>
           <Route

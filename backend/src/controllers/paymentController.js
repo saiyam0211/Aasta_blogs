@@ -3,88 +3,12 @@ const asyncHandler = require('../middleware/asyncHandler');
 const CustomError = require('../middleware/customError');
 const Investment = require('../models/Investment');
 
-let cachedConversionRate = {
-  value: 0.01136, // ~₹88 per $1
-  timestamp: 0
-};
-
-const CONVERSION_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+// Hardcoded conversion rate: 1 USD = 88.48 INR
+// Therefore: 1 INR = 1/88.48 = 0.011301 USD
+const CONVERSION_RATE = 1 / 88.48; // 0.011301 USD per INR
 
 const fetchConversionRate = async () => {
-  const now = Date.now();
-  if (now - cachedConversionRate.timestamp < CONVERSION_CACHE_TTL) {
-    return cachedConversionRate.value;
-  }
-
-  const hydrateCache = (rate) => {
-    cachedConversionRate = {
-      value: rate,
-      timestamp: now
-    };
-    return rate;
-  };
-
-  const tryProviders = [
-    async () => {
-      const response = await fetch('https://api.exchangerate.host/latest?base=INR&symbols=USD');
-      if (!response.ok) {
-        throw new Error(`Failed to fetch conversion rate: ${response.status}`);
-      }
-      const data = await response.json();
-      const usdRate = data?.rates?.USD;
-      if (!usdRate) {
-        throw new Error('INR->USD rate missing in exchangerate.host response');
-      }
-      return usdRate;
-    },
-    async () => {
-      const response = await fetch('https://open.er-api.com/v6/latest/INR');
-      if (!response.ok) {
-        throw new Error(`Fallback provider failed: ${response.status}`);
-      }
-      const data = await response.json();
-      const usdRate = data?.rates?.USD;
-      if (!usdRate) {
-        throw new Error('INR->USD rate missing in open.er-api response');
-      }
-      return usdRate;
-    },
-    async () => {
-      const response = await fetch('https://v6.exchangerate-api.com/v6/1bb5e07e655515d03eb51605/latest/INR');
-      if (!response.ok) {
-        throw new Error(`Second fallback provider failed: ${response.status}`);
-      }
-      const data = await response.json();
-      const usdRate = data?.conversion_rates?.USD;
-      if (!usdRate) {
-        throw new Error('INR->USD rate missing in exchangerate-api response');
-      }
-      return usdRate;
-    },
-    async () => {
-      const response = await fetch('https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/inr/usd.json');
-      if (!response.ok) {
-        throw new Error(`Final fallback provider failed: ${response.status}`);
-      }
-      const data = await response.json();
-      const usdRate = data?.usd;
-      if (!usdRate) {
-        throw new Error('INR->USD rate missing in Fawaz Ahmed open currency API response');
-      }
-      return usdRate;
-    }
-  ];
-
-  for (const provider of tryProviders) {
-    try {
-      const rate = await provider();
-      return hydrateCache(rate);
-    } catch (error) {
-      console.error('Error fetching INR->USD conversion rate:', error.message);
-    }
-  }
-
-  return cachedConversionRate.value || 0.01136;
+  return CONVERSION_RATE;
 };
 
 // Initialize Razorpay instance
@@ -244,12 +168,30 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
     }
 
     console.log('Attempting to save investment with data:', {
-      ...investmentData,
-      razorpaySignature: investmentData.razorpaySignature.substring(0, 20) + '...'
+      investorName: investmentData.investorName,
+      investorEmail: investmentData.investorEmail,
+      investorPhone: investmentData.investorPhone || '(empty)',
+      investorLinkedIn: investmentData.investorLinkedIn || '(empty)',
+      investmentAmount: investmentData.investmentAmount,
+      currency: investmentData.currency,
+      razorpayOrderId: investmentData.razorpayOrderId,
+      razorpayPaymentId: investmentData.razorpayPaymentId,
+      razorpaySignature: investmentData.razorpaySignature.substring(0, 20) + '...',
+      paymentStatus: investmentData.paymentStatus
     });
 
     // Save investment to database
     const investment = new Investment(investmentData);
+    
+    // Validate before saving
+    const validationError = investment.validateSync();
+    if (validationError) {
+      console.error('Validation error before save:', validationError);
+      const validationErrors = Object.values(validationError.errors || {}).map((err) => {
+        return `${err.path}: ${err.message}`;
+      }).join(', ');
+      return next(new CustomError(`Validation failed: ${validationErrors}`, 400));
+    }
 
     await investment.save();
     console.log('Investment saved successfully:', investment._id);
