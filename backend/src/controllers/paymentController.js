@@ -63,16 +63,16 @@ const createOrder = asyncHandler(async (req, res, next) => {
 // Verify payment signature and save investment
 const verifyPayment = asyncHandler(async (req, res, next) => {
   try {
-    const { 
-      razorpay_order_id, 
-      razorpay_payment_id, 
-      razorpay_signature,
-      investorName,
-      investorEmail,
-      investorPhone,
-      investorLinkedIn,
-      investmentAmount
-    } = req.body;
+  const { 
+    razorpay_order_id, 
+    razorpay_payment_id, 
+    razorpay_signature,
+    investorName,
+    investorEmail,
+    investorPhone,
+    investorLinkedIn,
+    investmentAmount
+  } = req.body;
 
     console.log('Payment verification request received:', {
       razorpay_order_id,
@@ -89,14 +89,14 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
     console.log('Full request body:', JSON.stringify(req.body, null, 2));
 
     // Validate required Razorpay fields
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+  if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       console.error('Missing Razorpay verification data:', {
         has_order_id: !!razorpay_order_id,
         has_payment_id: !!razorpay_payment_id,
         has_signature: !!razorpay_signature
       });
-      return next(new CustomError('Payment verification data is required', 400));
-    }
+    return next(new CustomError('Payment verification data is required', 400));
+  }
 
     // Validate required investor fields
     if (!investorName || !investorEmail) {
@@ -113,7 +113,7 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
     }
 
     // Verify signature
-    const crypto = require('crypto');
+  const crypto = require('crypto');
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
     
     if (!keySecret) {
@@ -122,35 +122,35 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
     }
 
     const hmac = crypto.createHmac('sha256', keySecret);
-    hmac.update(razorpay_order_id + '|' + razorpay_payment_id);
-    const generatedSignature = hmac.digest('hex');
+  hmac.update(razorpay_order_id + '|' + razorpay_payment_id);
+  const generatedSignature = hmac.digest('hex');
 
-    const isSignatureValid = generatedSignature === razorpay_signature;
+  const isSignatureValid = generatedSignature === razorpay_signature;
 
-    if (!isSignatureValid) {
+  if (!isSignatureValid) {
       console.error('Signature verification failed:', {
         generated: generatedSignature.substring(0, 20) + '...',
         received: razorpay_signature.substring(0, 20) + '...'
       });
-      return next(new CustomError('Invalid payment signature', 400));
-    }
+    return next(new CustomError('Invalid payment signature', 400));
+  }
 
     console.log('Signature verified successfully');
 
-    // Check if investment already exists
-    const existingInvestment = await Investment.findOne({ 
-      razorpayPaymentId: razorpay_payment_id 
-    });
+  // Check if investment already exists
+  const existingInvestment = await Investment.findOne({ 
+    razorpayPaymentId: razorpay_payment_id 
+  });
 
-    if (existingInvestment) {
+  if (existingInvestment) {
       console.log('Payment already verified, returning existing investment');
-      return res.status(200).json({
-        success: true,
-        message: 'Payment already verified',
-        paymentId: razorpay_payment_id,
-        orderId: razorpay_order_id
-      });
-    }
+    return res.status(200).json({
+      success: true,
+      message: 'Payment already verified',
+      paymentId: razorpay_payment_id,
+      orderId: razorpay_order_id
+    });
+  }
 
     // Prepare and validate investment data
     const trimmedName = (investorName || '').trim();
@@ -179,11 +179,11 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
       investorPhone: trimmedPhone,
       investorLinkedIn: trimmedLinkedIn,
       investmentAmount: numAmount,
-      currency: 'INR',
-      razorpayOrderId: razorpay_order_id,
-      razorpayPaymentId: razorpay_payment_id,
-      razorpaySignature: razorpay_signature,
-      paymentStatus: 'completed'
+    currency: 'INR',
+    razorpayOrderId: razorpay_order_id,
+    razorpayPaymentId: razorpay_payment_id,
+    razorpaySignature: razorpay_signature,
+    paymentStatus: 'completed'
     };
 
     console.log('Attempting to save investment with data:', {
@@ -214,7 +214,7 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
         return next(new CustomError(`Validation failed: ${validationErrors}`, 400));
       }
 
-      await investment.save();
+  await investment.save();
       console.log('Investment saved successfully:', investment._id);
     } catch (saveError) {
       console.error('Error during save:', saveError);
@@ -229,13 +229,13 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
       throw saveError;
     }
 
-    res.status(200).json({
-      success: true,
-      message: 'Payment verified and investment saved successfully',
-      paymentId: razorpay_payment_id,
-      orderId: razorpay_order_id,
-      investmentId: investment._id
-    });
+  res.status(200).json({
+    success: true,
+    message: 'Payment verified and investment saved successfully',
+    paymentId: razorpay_payment_id,
+    orderId: razorpay_order_id,
+    investmentId: investment._id
+  });
   } catch (error) {
     console.error('Error in verifyPayment:', error);
     if (error.name === 'ValidationError') {
@@ -263,18 +263,18 @@ const getInvestmentsData = asyncHandler(async (req, res, next) => {
 
   // Use Promise.all for parallel execution
   const [totalResult, recentInvestors] = await Promise.all([
-    // Get total amount raised
+  // Get total amount raised
     Investment.aggregate([
-      {
-        $match: { paymentStatus: 'completed' }
-      },
-      {
-        $group: {
-          _id: null,
-          totalAmount: { $sum: '$investmentAmount' },
-          totalInvestors: { $sum: 1 }
-        }
+    {
+      $match: { paymentStatus: 'completed' }
+    },
+    {
+      $group: {
+        _id: null,
+        totalAmount: { $sum: '$investmentAmount' },
+        totalInvestors: { $sum: 1 }
       }
+    }
     ]),
     // Get recent investors (last 10 instead of 20 for faster response)
     Investment.find({ paymentStatus: 'completed' })

@@ -215,19 +215,19 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
             console.log('Payment verified and saved:', verifyData);
             window.dispatchEvent(new Event('investment-updated'));
 
-            const nextIndex = index + 1;
-            if (nextIndex < queue.length) {
-              setCurrentPaymentIndex(nextIndex);
-              setCurrentChunkAmount(queue[nextIndex]);
-              setAwaitingConfirmation(true);
+          const nextIndex = index + 1;
+          if (nextIndex < queue.length) {
+            setCurrentPaymentIndex(nextIndex);
+            setCurrentChunkAmount(queue[nextIndex]);
+            setAwaitingConfirmation(true);
               if (queue.length > 1) {
                 setShowSplitConfirmationModal(true);
               }
-            } else {
-              setSubmitted(true);
-              setPaymentQueue([]);
-              setCurrentChunkAmount(0);
-              setAwaitingConfirmation(false);
+          } else {
+            setSubmitted(true);
+            setPaymentQueue([]);
+            setCurrentChunkAmount(0);
+            setAwaitingConfirmation(false);
               setShowSplitConfirmationModal(false);
             }
           } catch (error: any) {
@@ -252,7 +252,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
             setLoading(false);
             setError('Payment was cancelled. You can resume to complete the remaining amount.');
             if (queue.length > 1) {
-              setAwaitingConfirmation(true);
+            setAwaitingConfirmation(true);
               setShowSplitConfirmationModal(true);
             } else {
               setAwaitingConfirmation(false);
@@ -290,7 +290,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
         setError(errorMessage);
         console.error('Payment failed:', errorResponse.error);
         if (queue.length > 1) {
-          setAwaitingConfirmation(true);
+        setAwaitingConfirmation(true);
           setShowSplitConfirmationModal(true);
         } else {
           setAwaitingConfirmation(false);
@@ -305,7 +305,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
         setError(errorMessage);
         console.error('Razorpay error:', error);
         if (queue.length > 1) {
-          setAwaitingConfirmation(true);
+        setAwaitingConfirmation(true);
           setShowSplitConfirmationModal(true);
         } else {
           setAwaitingConfirmation(false);
@@ -321,7 +321,7 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
       const errorMessage = error?.message || 'An error occurred. Please try again.';
       setError(errorMessage);
       if (queue.length > 1) {
-        setAwaitingConfirmation(true);
+      setAwaitingConfirmation(true);
         setShowSplitConfirmationModal(true);
       } else {
         setAwaitingConfirmation(false);
@@ -394,15 +394,15 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fadeIn">
-        {/* Backdrop */}
-        <div
-          className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
-          onClick={handleClose}
-        />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fadeIn">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity"
+        onClick={handleClose}
+      />
 
-        {/* Modal Content */}
-        <div className="investment-modal relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-card-bg via-card-bg/95 to-card-bg/90 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-12 border-4 border-primary/40 shadow-2xl animate-slideUp [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      {/* Modal Content */}
+      <div className="investment-modal relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-card-bg via-card-bg/95 to-card-bg/90 rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-8 lg:p-12 border-4 border-primary/40 shadow-2xl animate-slideUp [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {/* Close Button */}
         <button
           onClick={handleClose}
@@ -641,8 +641,8 @@ export const InvestmentModal = ({ isOpen, onClose }: InvestmentModalProps) => {
             </p>
           </form>
         )}
-        </div>
       </div>
+    </div>
 
       {showSplitConfirmationModal && awaitingConfirmation && isSplitPayment && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">

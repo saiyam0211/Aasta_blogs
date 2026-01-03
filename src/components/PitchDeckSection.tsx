@@ -95,34 +95,34 @@ export const PitchDeckSection = ({ slides }: PitchDeckSectionProps) => {
           {/* Left Side - Pitch Deck Display */}
           <div className="relative flex flex-col lg:flex-row mt-5 justify-center items-center gap-8">
             <div className="relative w-full max-w-[1200px] lg:min-w-[700px]">
-              <div
+            <div
                 className="bg-card-bg rounded-[1.5rem] sm:rounded-[2.5rem] border-2 border-primary/30 overflow-hidden relative w-full"
-                style={{
-                  aspectRatio: "16 / 9",
-                  height: "auto",
-                }}
-              >
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={currentSlide}
-                    variants={slideVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={transition}
-                    className="absolute inset-0 flex items-center justify-center"
-                    style={{ willChange: 'transform, opacity' }}
-                  >
-                    <img
-                      src={slides[currentSlide]?.image || '/placeholder-slide.png'}
-                      alt={slides[currentSlide]?.title || `Slide ${currentSlide + 1}`}
-                      className="w-full h-full object-contain rounded-xl"
-                      loading="lazy"
-                      style={{ aspectRatio: '16 / 9' }}
-                    />
-                  </motion.div>
-                </AnimatePresence>
-              </div>
+              style={{
+                aspectRatio: "16 / 9",
+                height: "auto",
+              }}
+            >
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={currentSlide}
+                  variants={slideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={transition}
+                  className="absolute inset-0 flex items-center justify-center"
+                  style={{ willChange: 'transform, opacity' }}
+                >
+                  <img
+                    src={slides[currentSlide]?.image || '/placeholder-slide.png'}
+                    alt={slides[currentSlide]?.title || `Slide ${currentSlide + 1}`}
+                    className="w-full h-full object-contain rounded-xl"
+                    loading="lazy"
+                    style={{ aspectRatio: '16 / 9' }}
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
               {/* Horizontal Indicator for mobile/tablet */}
               <div className="relative mt-4 w-[85%] mx-auto flex items-center justify-center gap-3 z-10 lg:hidden">
                 {slides.map((_, idx) => (
@@ -224,11 +224,11 @@ export const PitchDeckSection = ({ slides }: PitchDeckSectionProps) => {
               Our Story
             </h3> */}
             <div className="relative">
-              <div 
-                ref={scrollContainerRef}
+            <div 
+              ref={scrollContainerRef}
                 className="space-y-3 max-h-[450px] sm:max-h-[520px] overflow-y-auto pr-6 -mr-4 custom-scrollbar"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              >
+            >
               {slides.map((slide, index) => (
                 <button
                   key={slide.id}

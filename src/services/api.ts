@@ -101,30 +101,30 @@ class ApiService {
     };
 
     const requestPromise = (async () => {
-      try {
-        const response = await fetch(url, config);
+    try {
+      const response = await fetch(url, config);
 
-        if (!response.ok) {
-          const data = await response.json().catch(() => ({}));
-          throw new Error(data.message || `HTTP error! status: ${response.status}`);
-        }
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+      }
 
-        // Handle 204 No Content responses
-        if (response.status === 204) {
-          return {} as T;
-        }
+      // Handle 204 No Content responses
+      if (response.status === 204) {
+        return {} as T;
+      }
 
-        const data = await response.json();
+      const data = await response.json();
         
         // Cache successful GET requests
         if (useCache && (!options.method || options.method === 'GET')) {
           this.setCache(cacheKey, data);
         }
         
-        return data;
-      } catch (error) {
-        console.error('API request failed:', error);
-        throw error;
+      return data;
+    } catch (error) {
+      console.error('API request failed:', error);
+      throw error;
       } finally {
         this.pendingRequests.delete(cacheKey);
       }

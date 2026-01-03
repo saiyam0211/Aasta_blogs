@@ -12,12 +12,12 @@ export const Footer = () => {
       // The HomePage component will handle the scroll via hash
     } else {
       // We're already on home page, just scroll
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start'
-        });
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
       }
     }
   };
@@ -34,10 +34,10 @@ export const Footer = () => {
       }, 100);
     } else {
       // We're already on home page, just scroll
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
     }
   };
 

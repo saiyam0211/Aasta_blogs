@@ -395,11 +395,11 @@ export const BecomeAnInvestorPage = () => {
             </div>
 
             <div ref={progressSectionRef} className="space-y-10">
-              {/* Mobile Progress */}
-              <div className="md:hidden space-y-6">
+                      {/* Mobile Progress */}
+          <div className="md:hidden space-y-6">
                 <div className="relative">
                   <div className="relative h-4 bg-primary-600/60 rounded-full border border-primary/30 overflow-hidden shadow-[0_0_28px_rgba(208,238,138,0.25)]">
-                    <div
+              <div
                       className="relative h-full bg-primary rounded-full transition-all duration-[1300ms] ease-out shadow-[0_0_25px_rgba(208,238,138,0.45)]"
                       style={{ width: `${animatedProgress}%` }}
                     >
@@ -439,36 +439,36 @@ export const BecomeAnInvestorPage = () => {
                       ></div>
                     </>
                   )}
-                </div>
-                <div className="grid grid-cols-3 gap-3 text-center text-sm text-primary font-semibold">
+            </div>
+            <div className="grid grid-cols-3 gap-3 text-center text-sm text-primary font-semibold">
                   <div className="space-y-1" style={{ position: 'absolute', left: '10%', transform: 'translateX(-50%)' }}>
-                    <div className={`mx-auto w-10 h-10 rounded-full border-2 flex items-center justify-center ${milestone1K ? 'bg-primary text-black border-background' : 'bg-background text-primary border-primary'}`}>
-                      <CheckCircle className="w-5 h-5" strokeWidth={3} />
-                    </div>
-                    <p>$1K</p>
-                  </div>
-                  <div className="space-y-1" style={{ position: 'absolute', left: '60%', transform: 'translateX(-50%)' }}>
-                    <div className={`mx-auto w-10 h-10 rounded-full border-2 flex items-center justify-center ${milestone3K ? 'bg-primary text-black border-background' : 'bg-background text-primary border-primary'}`}>
-                      <CheckCircle className="w-5 h-5" strokeWidth={3} />
-                    </div>
-                    <p>$3K</p>
-                  </div>
-                  <div className="space-y-1" style={{ position: 'absolute', left: '95%', transform: 'translateX(-50%)' }}>
-                    <div className={`mx-auto w-10 h-10 rounded-full border-2 flex items-center justify-center ${milestone5K ? 'bg-primary text-black border-background' : 'bg-background text-primary border-primary'}`}>
-                      <CheckCircle className="w-5 h-5" strokeWidth={3} />
-                    </div>
-                    <p>$5K</p>
-                  </div>
+                <div className={`mx-auto w-10 h-10 rounded-full border-2 flex items-center justify-center ${milestone1K ? 'bg-primary text-black border-background' : 'bg-background text-primary border-primary'}`}>
+                  <CheckCircle className="w-5 h-5" strokeWidth={3} />
                 </div>
+                <p>$1K</p>
               </div>
+                  <div className="space-y-1" style={{ position: 'absolute', left: '60%', transform: 'translateX(-50%)' }}>
+                <div className={`mx-auto w-10 h-10 rounded-full border-2 flex items-center justify-center ${milestone3K ? 'bg-primary text-black border-background' : 'bg-background text-primary border-primary'}`}>
+                  <CheckCircle className="w-5 h-5" strokeWidth={3} />
+                </div>
+                <p>$3K</p>
+              </div>
+                  <div className="space-y-1" style={{ position: 'absolute', left: '95%', transform: 'translateX(-50%)' }}>
+                <div className={`mx-auto w-10 h-10 rounded-full border-2 flex items-center justify-center ${milestone5K ? 'bg-primary text-black border-background' : 'bg-background text-primary border-primary'}`}>
+                  <CheckCircle className="w-5 h-5" strokeWidth={3} />
+                </div>
+                <p>$5K</p>
+              </div>
+            </div>
+          </div>
 
-              {/* Desktop Progress Bar with Milestones */}
-              <div className="relative hidden md:block">
-                <div className="relative">
+            {/* Desktop Progress Bar with Milestones */}
+            <div className="relative hidden md:block">
+              <div className="relative">
                   <div className="relative h-8 top-12 mb-12 sm:mb-16">
                     <div className="absolute inset-0 bg-primary-600 rounded-full border border-primary/30 overflow-hidden shadow-[0_0_35px_rgba(208,238,138,0.25)]"></div>
                     <div className="absolute inset-0">
-                      <div
+                    <div
                         className="absolute left-0 top-0 h-full bg-primary rounded-full transition-all duration-[1500ms] ease-out overflow-hidden shadow-[0_0_35px_rgba(208,238,138,0.45)] z-10"
                         style={{ width: `${animatedProgress}%` }}
                       >
@@ -501,13 +501,13 @@ export const BecomeAnInvestorPage = () => {
                             animation: 'investorPulse 1.8s ease-in-out infinite',
                           }}
                         ></div> */}
-                        <div
+                    <div
                           className="pointer-events-none absolute top-0 bottom-0 w-20 bg-gradient-to-r from-transparent via-primary/50 to-transparent"
                           style={{
                             left: `calc(${animatedProgress}% - 40px)`,
                             animation: 'investorReach 1.5s ease-in-out infinite',
                           }}
-                        ></div>
+                    ></div>
                       </>
                     )}
                   </div>
@@ -609,8 +609,8 @@ export const BecomeAnInvestorPage = () => {
         </div>
       </section>
 
-            {/* Fundraising Progress Section */}
-            <section className="py-10 sm:py-16 bg-background relative overflow-hidden">
+      {/* Fundraising Progress Section */}
+      <section className="py-10 sm:py-16 bg-background relative overflow-hidden">
         {/* Enhanced Background decorations */}
         <div className="absolute inset-0 opacity-20">
           <div className="absolute top-20 left-10 w-96 h-96 bg-primary rounded-full blur-3xl animate-pulse"></div>
@@ -785,7 +785,7 @@ export const BecomeAnInvestorPage = () => {
               >
                 Invest in Aasta
               </button>
-            </div>
+        </div>
       </section>
 
 
