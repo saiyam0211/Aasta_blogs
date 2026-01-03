@@ -47,7 +47,7 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 204, // Set to 204 for preflight requests
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'If-None-Match', 'If-Modified-Since'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control', 'If-None-Match', 'If-Modified-Since', 'Pragma', 'Expires'],
   exposedHeaders: ['ETag', 'Last-Modified', 'Cache-Control']
 };
 
