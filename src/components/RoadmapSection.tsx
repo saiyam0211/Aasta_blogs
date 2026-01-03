@@ -33,7 +33,7 @@ export const RoadmapSection = () => {
                 if (JSON.stringify(freshBlogs) !== JSON.stringify(cachedBlogs)) {
                   setBlogs(freshBlogs);
                   if (freshBlogs.length > 0) {
-                    setCurrentStage(freshBlogs.length);
+                    setCurrentStage(0); // Start at first blog
                   }
                   localStorage.setItem(cacheKey, JSON.stringify({
                     blogs: freshBlogs,
@@ -51,9 +51,9 @@ export const RoadmapSection = () => {
         setLoading(true);
         const fetchedBlogs = await apiService.getAllBlogs();
         setBlogs(fetchedBlogs);
-        // Set initial stage to middle if we have blogs
+        // Set initial stage to first blog
         if (fetchedBlogs.length > 0) {
-          setCurrentStage(fetchedBlogs.length); // Start in the middle of the triple array
+          setCurrentStage(0); // Start at first blog
         }
         
         // Cache the result
@@ -116,9 +116,9 @@ export const RoadmapSection = () => {
     if (blogs.length === 0) return;
     setCurrentStage((prev) => {
       const next = prev + 1;
-      // If we reach the end of the second set, jump to the start of the second set
-      if (next >= blogs.length * 2) {
-        return blogs.length; // Start of second set
+      // Loop back to start if we reach the end
+      if (next >= blogs.length) {
+        return 0;
       }
       return next;
     });
@@ -128,29 +128,15 @@ export const RoadmapSection = () => {
     if (blogs.length === 0) return;
     setCurrentStage((prev) => {
       const prevBlog = prev - 1;
-      // If we go below the start of the second set, jump to the end of the second set
-      if (prevBlog < blogs.length) {
-        return blogs.length * 2 - 1; // End of second set
+      // Loop to end if we go below 0
+      if (prevBlog < 0) {
+        return blogs.length - 1;
       }
       return prevBlog;
     });
   };
 
-  // Handle seamless transitions when jumping between sets
-  useEffect(() => {
-    const handleTransition = () => {
-      if (currentStage >= blogs.length * 2) {
-        // Jump to equivalent position in second set
-        setCurrentStage(currentStage - blogs.length);
-      } else if (currentStage < blogs.length) {
-        // Jump to equivalent position in second set
-        setCurrentStage(currentStage + blogs.length);
-      }
-    };
-
-    const timeoutId = setTimeout(handleTransition, 500); // After animation completes
-    return () => clearTimeout(timeoutId);
-  }, [currentStage, blogs.length]);
+  // Removed auto-animation logic - carousel is now manual only
 
 
 
@@ -269,9 +255,9 @@ export const RoadmapSection = () => {
 
         {/* Blog Carousel with Infinite Loop - only show if we have blogs */}
         {!loading && !error && blogs.length > 0 && (
-          <div className="relative overflow-hidden">
+          <div className="relative overflow-hidden px-2 sm:px-0">
             <motion.div
-              className="flex w-full sm:w-[95%]"
+              className="flex gap-3 sm:gap-5"
               animate={{ x: -currentStage * (cardWidthPercent + marginPercent) + "%" }}
               transition={{
                 type: "spring",
@@ -281,38 +267,38 @@ export const RoadmapSection = () => {
                 ease: "easeInOut"
               }}
             >
-              {/* Render blogs in a loop to create infinite effect */}
-              {[...blogs, ...blogs, ...blogs].map((blog, index) => (
+              {/* Render only blogs once - no duplicates */}
+              {blogs.map((blog, index) => (
                 <div
-                  key={`${Math.floor(index / blogs.length)}-${index % blogs.length}`}
-                  className="flex-shrink-0 w-[85%] sm:w-1/2 lg:w-1/3 bg-cream border-r-8 border-t-8 border-black rounded-t-full py-8 sm:py-12 lg:py-14 px-5 sm:px-6 mr-3 sm:mr-5 ml-1 flex flex-col min-h-[500px] sm:min-h-auto"
+                  key={blog._id || index}
+                  className="flex-shrink-0 w-[85%] sm:w-1/2 lg:w-1/3 bg-cream border-r-8 border-t-8 border-black rounded-t-full py-8 sm:py-12 lg:py-14 px-5 sm:px-6 flex flex-col min-h-[550px] sm:min-h-auto"
                 >
                   {/* Blog Content */}
-                  <div className="flex flex-col h-full">
+                  <div className="flex flex-col h-full gap-3">
                     {/* Category Badge */}
-                    <div className="font-dela inline-block justify-center text-center flex items-center text-black px-3 py-1.5 rounded-full text-sm sm:text-xl mb-3 sm:mb-3">
+                    <div className="font-dela inline-block justify-center text-center flex items-center text-black px-3 py-1.5 rounded-full text-sm sm:text-xl">
                       {blog.category || 'Blog Post'}
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-base sm:text-xl font-black text-black leading-snug px-2 sm:px-4 text-center min-h-[56px] sm:h-[72px] flex items-start justify-center mb-3 sm:mb-3">
+                    <h3 className="text-base sm:text-xl font-black text-black leading-tight px-2 sm:px-4 text-center">
                       {blog.title}
                     </h3>
 
                     {/* Author and Time */}
-                    <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-black/70 mb-3 sm:mb-3">
+                    <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-black/70">
                       <span className="font-medium">By {blog.author}</span>
                       <span>•</span>
                       <span>{formatDate(blog.createdAt)}</span>
                     </div>
 
                     {/* Headline (Eye-catching text) */}
-                    <p className="text-black/80 text-xs sm:text-sm leading-relaxed flex-grow px-2 sm:px-0 mb-4 sm:mb-3 line-clamp-3 sm:line-clamp-none">
+                    <p className="text-black/80 text-xs sm:text-sm leading-relaxed flex-grow px-2 sm:px-0 line-clamp-4 sm:line-clamp-none">
                       {createExcerpt(blog.headline || blog.content)}
                     </p>
 
                     {/* Read More Button */}
-                    <a href={`/blogs/${blog._id}`} className="w-full mt-auto text-sm sm:text-xl py-2.5 sm:py-4 text-black px-4 rounded-full font-bold bg-[#fcfab2] border-b-8 border-r-4 border-t-2 border-black hover:scale-105 transition-all text-center">
+                    <a href={`/blogs/${blog._id}`} className="w-full mt-4 text-sm sm:text-xl py-2.5 sm:py-4 text-black px-4 rounded-full font-bold bg-[#fcfab2] border-b-8 border-r-4 border-t-2 border-black hover:scale-105 transition-all text-center">
                       Read More
                     </a>
                   </div>
