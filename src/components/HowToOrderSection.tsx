@@ -82,10 +82,12 @@ export const HowToOrderSection = () => {
                 </div> */}
               </div>
               <button
-                className="w-full mt-3 sm:mt-4 bg-[#fcfab2] border-b-8 border-r-4 border-t-2 border-black rounded-full py-3 sm:py-4 px-5 sm:px-6 text-black font-black text-base sm:text-lg lg:text-xl opacity-60 cursor-not-allowed"
-                disabled
+                onClick={() => {
+                  window.open("https://drive.google.com/file/d/1YrUoclhE_NFJnZKecrqjPDPoSRi3eOoo/view?usp=sharing", "_blank", "noopener,noreferrer");
+                }}
+                className="w-full mt-3 sm:mt-4 bg-[#fcfab2] border-b-8 border-r-4 border-t-2 border-black rounded-full py-3 sm:py-4 px-5 sm:px-6 text-black font-black text-base sm:text-lg lg:text-xl"
               >
-                Download App <span className="text-[.9em] font-normal ml-2">(coming soon)</span>
+                Download our App <span className="text-[.9em] font-normal ml-2">(Testing Mode)</span>
               </button>
             </div>
 

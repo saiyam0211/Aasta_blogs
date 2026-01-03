@@ -7,9 +7,9 @@ export const HeroSection = () => {
       <div className="absolute inset-0 opacity-20 hidden md:block">
         <div className=" -mt-40 inset-0 flex items-center justify-center pointer-events-none z-0">
           <div className="w-[80rem] h-[80rem] animate-spin-slow flex items-center justify-center">
-            <img 
-              src="/hero_bg_star.svg" 
-              alt="Rotating star background" 
+            <img
+              src="/hero_bg_star.svg"
+              alt="Rotating star background"
               className="w-full h-full object-contain"
               loading="lazy"
             />
@@ -43,7 +43,7 @@ export const HeroSection = () => {
               >
                 Join Community
               </a>
-              <a
+              {/* <a
                 href="#blogs"
                 className="cursor-pointer hover:scale-105 transition-transform flex items-center gap-2 text-white"
                 onClick={e => {
@@ -56,7 +56,7 @@ export const HeroSection = () => {
               >
                 <span className="cursor-pointer">→</span>
                 <span className="cursor-pointer">Our Blogs</span>
-              </a>
+              </a> */}
             </div>
 
             {/* GET IT NOW ON Section */}
@@ -75,7 +75,7 @@ export const HeroSection = () => {
                 </div>
 
                 {/* Exchange Buttons */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-6 sm:mt-8 md:mt-10 mb-3 sm:mb-4">
+                {/* <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mt-6 sm:mt-8 md:mt-10 mb-3 sm:mb-4">
                   <button
                     className="bg-[#fcfa9f] border-b-8 border-r-4 border-t-2 border-black rounded-full px-4 py-3 text-black font-bold opacity-60 cursor-not-allowed"
                     disabled
@@ -88,6 +88,17 @@ export const HeroSection = () => {
                   >
                     App Store <span className="text-[.9em] font-normal ml-2">(coming soon)</span>
                   </button>
+                </div> */}
+
+                <div className="gap-3 sm:gap-4 mt-6 sm:mt-8 md:mt-10 mb-3 sm:mb-4 flex justify-start items-start">
+                  <button
+                    className="bg-[#fcfa9f] text-2xl border-b-8 border-r-4 border-t-2 border-black rounded-full px-5 py-4 text-black font-bold"
+                    onClick={() => {
+                      window.open("https://drive.google.com/file/d/1YrUoclhE_NFJnZKecrqjPDPoSRi3eOoo/view?usp=sharing", "_blank", "noopener,noreferrer");
+                    }}
+                  >
+                    Download our App <span className="text-[.9em] font-normal ml-2">(Testing Mode)</span>
+                  </button>
                 </div>
 
                 {/* Mascot Image */}
@@ -95,9 +106,9 @@ export const HeroSection = () => {
                   <picture>
                     <source srcSet="/hero_mascot.avif" type="image/avif" />
                     <source srcSet="/hero_mascot.webp" type="image/webp" />
-                    <img 
-                      src="/hero_mascot.png" 
-                      alt="AASTA Mascot" 
+                    <img
+                      src="/hero_mascot.png"
+                      alt="AASTA Mascot"
                       className="w-full h-full object-contain"
                       fetchpriority="high"
                     />

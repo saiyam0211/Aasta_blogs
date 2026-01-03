@@ -43,7 +43,15 @@ const createBlog = asyncHandler(async (req, res, next) => {
 const getAllBlogs = asyncHandler(async (req, res) => {
   const blogs = await Blog.find()
     .sort({ createdAt: -1 }) // Sort by creation date in descending order
-    .select('_id title content author category headline createdAt updatedAt slug');
+    .select('_id title content author category headline createdAt updatedAt slug')
+    .lean(); // Use lean() for faster queries
+
+  // Set cache headers for 5 minutes
+  res.set({
+    'Cache-Control': 'public, max-age=300, s-maxage=300',
+    'ETag': `"blogs-${blogs.length}-${Date.now()}"`,
+    'Last-Modified': blogs.length > 0 ? new Date(blogs[0].createdAt).toUTCString() : new Date().toUTCString()
+  });
 
   res.status(200).json({
     success: true,
@@ -62,11 +70,18 @@ const getBlogById = asyncHandler(async (req, res, next) => {
     return next(new CustomError('Invalid blog post ID format', 400));
   }
 
-  const blog = await Blog.findById(id);
+  const blog = await Blog.findById(id).lean(); // Use lean() for faster queries
 
   if (!blog) {
     return next(new CustomError('Blog post not found', 404));
   }
+
+  // Set cache headers for 5 minutes
+  res.set({
+    'Cache-Control': 'public, max-age=300, s-maxage=300',
+    'ETag': `"blog-${id}-${blog.updatedAt}"`,
+    'Last-Modified': new Date(blog.updatedAt).toUTCString()
+  });
 
   res.status(200).json({
     success: true,

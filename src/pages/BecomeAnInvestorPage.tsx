@@ -48,10 +48,32 @@ export const BecomeAnInvestorPage = () => {
     return `${firstPart}***${lastPart}`;
   };
 
-  const fetchInvestmentData = useCallback(async () => {
+  const fetchInvestmentData = useCallback(async (forceRefresh: boolean = false) => {
     try {
+      // Check cache first unless force refresh
+      if (!forceRefresh) {
+        const cachedString = localStorage.getItem(INVESTMENT_DATA_CACHE_KEY);
+        if (cachedString) {
+          try {
+            const cached = JSON.parse(cachedString);
+            if (cached?.timestamp && Date.now() - cached.timestamp < INVESTMENT_DATA_CACHE_TTL) {
+              // Cache is still valid, use it
+              return;
+            }
+          } catch (e) {
+            console.warn('Failed to parse cached investment data', e);
+          }
+        }
+      }
+
       const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://aasta-main-website.onrender.com';
-      const response = await fetch(`${backendUrl}/api/payments/data`);
+      const response = await fetch(`${backendUrl}/api/payments/data`, {
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
+      
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
@@ -84,34 +106,55 @@ export const BecomeAnInvestorPage = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [conversionRate]);
 
-  // Fetch investment data
+  // Fetch investment data with optimized caching
   useEffect(() => {
-    try {
-      const cachedString = localStorage.getItem(INVESTMENT_DATA_CACHE_KEY);
-      if (cachedString) {
-        const cached = JSON.parse(cachedString);
-        if (cached?.timestamp && Date.now() - cached.timestamp < INVESTMENT_DATA_CACHE_TTL) {
-          setInvestmentData({
-            totalAmount: cached.data.totalAmount,
-            totalInvestors: cached.data.totalInvestors,
-            recentInvestors: cached.data.recentInvestors || []
-          });
-          if (cached.data.conversionRate) {
-            setConversionRate(cached.data.conversionRate);
+    let isMounted = true;
+    
+    const loadInitialData = async () => {
+      try {
+        const cachedString = localStorage.getItem(INVESTMENT_DATA_CACHE_KEY);
+        if (cachedString) {
+          const cached = JSON.parse(cachedString);
+          if (cached?.timestamp && Date.now() - cached.timestamp < INVESTMENT_DATA_CACHE_TTL) {
+            if (isMounted) {
+              setInvestmentData({
+                totalAmount: cached.data.totalAmount,
+                totalInvestors: cached.data.totalInvestors,
+                recentInvestors: cached.data.recentInvestors || []
+              });
+              if (cached.data.conversionRate) {
+                setConversionRate(cached.data.conversionRate);
+              }
+              setLoading(false);
+            }
+            // Fetch fresh data in background
+            fetchInvestmentData(true);
+            return;
           }
-          setLoading(false);
         }
+      } catch (error) {
+        console.warn('Failed to restore cached investment data', error);
       }
-    } catch (error) {
-      console.warn('Failed to restore cached investment data', error);
-    }
 
-    fetchInvestmentData();
-    // Refresh data every 10 seconds
-    const interval = setInterval(fetchInvestmentData, 10000);
-    return () => clearInterval(interval);
+      // No valid cache, fetch immediately
+      fetchInvestmentData(true);
+    };
+
+    loadInitialData();
+    
+    // Refresh data every 30 seconds (reduced from 10 seconds)
+    const interval = setInterval(() => {
+      if (isMounted) {
+        fetchInvestmentData(false);
+      }
+    }, 30000);
+    
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [fetchInvestmentData]);
 
   useEffect(() => {

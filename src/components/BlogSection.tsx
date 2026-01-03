@@ -94,17 +94,48 @@ export const BlogSection = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch blogs from API
+  // Fetch blogs from API with caching
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
+        // Check localStorage cache first
+        const cacheKey = 'aasta-blogs-cache-v1';
+        const cacheTTL = 5 * 60 * 1000; // 5 minutes
+        const cachedData = localStorage.getItem(cacheKey);
+        
+        if (cachedData) {
+          try {
+            const { blogs: cachedBlogs, timestamp } = JSON.parse(cachedData);
+            if (Date.now() - timestamp < cacheTTL && cachedBlogs.length > 0) {
+              setBlogs(cachedBlogs.slice(0, 6));
+              setLoading(false);
+              // Still fetch in background to update cache
+              apiService.getAllBlogs().then(freshBlogs => {
+                if (JSON.stringify(freshBlogs) !== JSON.stringify(cachedBlogs)) {
+                  setBlogs(freshBlogs.slice(0, 6));
+                  localStorage.setItem(cacheKey, JSON.stringify({
+                    blogs: freshBlogs,
+                    timestamp: Date.now()
+                  }));
+                }
+              }).catch(err => console.error('Background blog fetch failed:', err));
+              return;
+            }
+          } catch (e) {
+            console.warn('Failed to parse cached blogs', e);
+          }
+        }
+
         setLoading(true);
-        console.log('Fetching blogs from API...');
         const fetchedBlogs = await apiService.getAllBlogs();
-        console.log('Fetched blogs:', fetchedBlogs);
         // Show only the 6 most recent blogs for the homepage
         setBlogs(fetchedBlogs.slice(0, 6));
-        console.log('Set blogs state:', fetchedBlogs.slice(0, 6));
+        
+        // Cache the result
+        localStorage.setItem(cacheKey, JSON.stringify({
+          blogs: fetchedBlogs,
+          timestamp: Date.now()
+        }));
       } catch (err) {
         console.error('Error fetching blogs:', err);
         setError('Failed to load blog posts');

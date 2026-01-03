@@ -34,9 +34,43 @@ export const BlogPage = () => {
       }
 
       try {
+        // Check cache first
+        const cacheKey = `aasta-blog-${blogId}-v1`;
+        const cacheTTL = 5 * 60 * 1000; // 5 minutes
+        const cachedData = localStorage.getItem(cacheKey);
+        
+        if (cachedData) {
+          try {
+            const { blog: cachedBlog, timestamp } = JSON.parse(cachedData);
+            if (Date.now() - timestamp < cacheTTL && cachedBlog) {
+              setBlog(cachedBlog);
+              setLoading(false);
+              // Fetch fresh data in background
+              apiService.getBlogById(blogId).then(freshBlog => {
+                if (JSON.stringify(freshBlog) !== JSON.stringify(cachedBlog)) {
+                  setBlog(freshBlog);
+                  localStorage.setItem(cacheKey, JSON.stringify({
+                    blog: freshBlog,
+                    timestamp: Date.now()
+                  }));
+                }
+              }).catch(err => console.error('Background blog fetch failed:', err));
+              return;
+            }
+          } catch (e) {
+            console.warn('Failed to parse cached blog', e);
+          }
+        }
+
         setLoading(true);
         const fetchedBlog = await apiService.getBlogById(blogId);
         setBlog(fetchedBlog);
+        
+        // Cache the result
+        localStorage.setItem(cacheKey, JSON.stringify({
+          blog: fetchedBlog,
+          timestamp: Date.now()
+        }));
       } catch (err) {
         console.error('Error fetching blog:', err);
         

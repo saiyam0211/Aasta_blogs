@@ -261,29 +261,38 @@ const verifyPayment = asyncHandler(async (req, res, next) => {
 const getInvestmentsData = asyncHandler(async (req, res, next) => {
   const conversionRate = await fetchConversionRate();
 
-  // Get total amount raised
-  const totalResult = await Investment.aggregate([
-    {
-      $match: { paymentStatus: 'completed' }
-    },
-    {
-      $group: {
-        _id: null,
-        totalAmount: { $sum: '$investmentAmount' },
-        totalInvestors: { $sum: 1 }
+  // Use Promise.all for parallel execution
+  const [totalResult, recentInvestors] = await Promise.all([
+    // Get total amount raised
+    Investment.aggregate([
+      {
+        $match: { paymentStatus: 'completed' }
+      },
+      {
+        $group: {
+          _id: null,
+          totalAmount: { $sum: '$investmentAmount' },
+          totalInvestors: { $sum: 1 }
+        }
       }
-    }
+    ]),
+    // Get recent investors (last 10 instead of 20 for faster response)
+    Investment.find({ paymentStatus: 'completed' })
+      .select('investorName createdAt investmentAmount -_id')
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean()
   ]);
 
   const totalAmount = totalResult.length > 0 ? totalResult[0].totalAmount : 0;
   const totalInvestors = totalResult.length > 0 ? totalResult[0].totalInvestors : 0;
 
-  // Get recent investors (last 20)
-  const recentInvestors = await Investment.find({ paymentStatus: 'completed' })
-    .select('investorName createdAt investmentAmount')
-    .sort({ createdAt: -1 })
-    .limit(20)
-    .lean();
+  // Set cache headers for 5 minutes
+  res.set({
+    'Cache-Control': 'public, max-age=300, s-maxage=300',
+    'ETag': `"${totalAmount}-${totalInvestors}-${Date.now()}"`,
+    'Last-Modified': new Date().toUTCString()
+  });
 
   res.status(200).json({
     success: true,

@@ -37,16 +37,58 @@ export interface LoginResponse {
 
 class ApiService {
   private token: string | null = null;
+  private cache: Map<string, { data: any; timestamp: number }> = new Map();
+  private pendingRequests: Map<string, Promise<any>> = new Map();
+  private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
   constructor() {
     // Load token from localStorage if available
     this.token = localStorage.getItem('authToken');
   }
 
+  private getCacheKey(endpoint: string, options?: RequestInit): string {
+    return `${endpoint}_${options?.method || 'GET'}`;
+  }
+
+  private getFromCache<T>(cacheKey: string): T | null {
+    const cached = this.cache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < this.CACHE_TTL) {
+      return cached.data as T;
+    }
+    if (cached) {
+      this.cache.delete(cacheKey);
+    }
+    return null;
+  }
+
+  private setCache(cacheKey: string, data: any): void {
+    this.cache.set(cacheKey, {
+      data,
+      timestamp: Date.now()
+    });
+  }
+
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    useCache: boolean = true
   ): Promise<T> {
+    const cacheKey = this.getCacheKey(endpoint, options);
+
+    // Return cached data if available and caching is enabled
+    if (useCache && options.method !== 'POST' && options.method !== 'PUT' && options.method !== 'DELETE') {
+      const cachedData = this.getFromCache<T>(cacheKey);
+      if (cachedData) {
+        return cachedData;
+      }
+
+      // If there's a pending request for the same endpoint, return that promise
+      const pendingRequest = this.pendingRequests.get(cacheKey);
+      if (pendingRequest) {
+        return pendingRequest;
+      }
+    }
+
     const url = `${API_BASE_URL}${endpoint}`;
 
     const config: RequestInit = {
@@ -58,24 +100,51 @@ class ApiService {
       ...options,
     };
 
-    try {
-      const response = await fetch(url, config);
+    const requestPromise = (async () => {
+      try {
+        const response = await fetch(url, config);
 
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data.message || `HTTP error! status: ${response.status}`);
+        }
+
+        // Handle 204 No Content responses
+        if (response.status === 204) {
+          return {} as T;
+        }
+
+        const data = await response.json();
+        
+        // Cache successful GET requests
+        if (useCache && (!options.method || options.method === 'GET')) {
+          this.setCache(cacheKey, data);
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('API request failed:', error);
+        throw error;
+      } finally {
+        this.pendingRequests.delete(cacheKey);
       }
+    })();
 
-      // Handle 204 No Content responses
-      if (response.status === 204) {
-        return {} as T;
-      }
+    // Store pending request
+    if (useCache) {
+      this.pendingRequests.set(cacheKey, requestPromise);
+    }
 
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error('API request failed:', error);
-      throw error;
+    return requestPromise;
+  }
+
+  // Clear cache manually if needed
+  clearCache(endpoint?: string): void {
+    if (endpoint) {
+      const cacheKey = this.getCacheKey(endpoint);
+      this.cache.delete(cacheKey);
+    } else {
+      this.cache.clear();
     }
   }
 

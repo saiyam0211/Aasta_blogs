@@ -10,10 +10,44 @@ export const RoadmapSection = () => {
   const [cardWidthPercent, setCardWidthPercent] = useState(33.333); // responsive width
   const [marginPercent, setMarginPercent] = useState(2); // responsive margin spacing used in x calc
 
-  // Fetch blogs from API
+  // Fetch blogs from API with caching
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
+        // Check localStorage cache first
+        const cacheKey = 'aasta-blogs-cache-v1';
+        const cacheTTL = 5 * 60 * 1000; // 5 minutes
+        const cachedData = localStorage.getItem(cacheKey);
+        
+        if (cachedData) {
+          try {
+            const { blogs: cachedBlogs, timestamp } = JSON.parse(cachedData);
+            if (Date.now() - timestamp < cacheTTL && cachedBlogs.length > 0) {
+              setBlogs(cachedBlogs);
+              if (cachedBlogs.length > 0) {
+                setCurrentStage(cachedBlogs.length);
+              }
+              setLoading(false);
+              // Still fetch in background to update cache
+              apiService.getAllBlogs().then(freshBlogs => {
+                if (JSON.stringify(freshBlogs) !== JSON.stringify(cachedBlogs)) {
+                  setBlogs(freshBlogs);
+                  if (freshBlogs.length > 0) {
+                    setCurrentStage(freshBlogs.length);
+                  }
+                  localStorage.setItem(cacheKey, JSON.stringify({
+                    blogs: freshBlogs,
+                    timestamp: Date.now()
+                  }));
+                }
+              }).catch(err => console.error('Background blog fetch failed:', err));
+              return;
+            }
+          } catch (e) {
+            console.warn('Failed to parse cached blogs', e);
+          }
+        }
+
         setLoading(true);
         const fetchedBlogs = await apiService.getAllBlogs();
         setBlogs(fetchedBlogs);
@@ -21,6 +55,12 @@ export const RoadmapSection = () => {
         if (fetchedBlogs.length > 0) {
           setCurrentStage(fetchedBlogs.length); // Start in the middle of the triple array
         }
+        
+        // Cache the result
+        localStorage.setItem(cacheKey, JSON.stringify({
+          blogs: fetchedBlogs,
+          timestamp: Date.now()
+        }));
       } catch (err) {
         console.error('Error fetching blogs:', err);
         setError('Failed to load blog posts');
@@ -37,8 +77,8 @@ export const RoadmapSection = () => {
     const compute = () => {
       const width = window.innerWidth;
       if (width < 640) { // sm breakpoint
-        setCardWidthPercent(70); // show partial neighbors
-        setMarginPercent(0);
+        setCardWidthPercent(85); // Updated to match new card width
+        setMarginPercent(1.5); // Small margin for spacing
       } else if (width < 1024) { // md to lg-
         setCardWidthPercent(50);
         setMarginPercent(2);
@@ -245,34 +285,34 @@ export const RoadmapSection = () => {
               {[...blogs, ...blogs, ...blogs].map((blog, index) => (
                 <div
                   key={`${Math.floor(index / blogs.length)}-${index % blogs.length}`}
-                  className="flex-shrink-0 w-[70%] sm:w-1/2 lg:w-1/3 bg-cream border-r-8 border-t-8 border-black rounded-t-full py-10 sm:py-12 lg:py-14 px-4 sm:px-6 mr-3 sm:mr-5 ml-1 flex flex-col h-auto"
+                  className="flex-shrink-0 w-[85%] sm:w-1/2 lg:w-1/3 bg-cream border-r-8 border-t-8 border-black rounded-t-full py-8 sm:py-12 lg:py-14 px-5 sm:px-6 mr-3 sm:mr-5 ml-1 flex flex-col min-h-[500px] sm:min-h-auto"
                 >
                   {/* Blog Content */}
                   <div className="flex flex-col h-full">
                     {/* Category Badge */}
-                    <div className="font-dela inline-block justify-center text-center flex items-center text-black px-3 py-1 rounded-full text-base sm:text-xl mb-2 sm:mb-3">
+                    <div className="font-dela inline-block justify-center text-center flex items-center text-black px-3 py-1.5 rounded-full text-sm sm:text-xl mb-3 sm:mb-3">
                       {blog.category || 'Blog Post'}
                     </div>
 
                     {/* Title */}
-                    <h3 className="text-lg sm:text-xl font-black text-black leading-tight px-2 sm:px-4 text-center h-[60px] sm:h-[72px] flex items-start justify-center mb-2 sm:mb-3">
+                    <h3 className="text-base sm:text-xl font-black text-black leading-snug px-2 sm:px-4 text-center min-h-[56px] sm:h-[72px] flex items-start justify-center mb-3 sm:mb-3">
                       {blog.title}
                     </h3>
 
                     {/* Author and Time */}
-                    <div className="flex items-center justify-center gap-2 mt-1 sm:mt-2 text-xs sm:text-sm text-black/70 min-h-[18px] sm:min-h-[20px] mb-2 sm:mb-3">
+                    <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-black/70 mb-3 sm:mb-3">
                       <span className="font-medium">By {blog.author}</span>
                       <span>•</span>
                       <span>{formatDate(blog.createdAt)}</span>
                     </div>
 
                     {/* Headline (Eye-catching text) */}
-                    <p className="text-black/80 mt-1 sm:mt-2 text-sm leading-relaxed flex-grow min-h-[50px] sm:min-h-[60px] mb-2 sm:mb-3">
+                    <p className="text-black/80 text-xs sm:text-sm leading-relaxed flex-grow px-2 sm:px-0 mb-4 sm:mb-3 line-clamp-3 sm:line-clamp-none">
                       {createExcerpt(blog.headline || blog.content)}
                     </p>
 
                     {/* Read More Button */}
-                    <a href={`/blogs/${blog._id}`} className="w-full mt-6 sm:mt-[5.5rem] text-base sm:text-xl py-3 sm:py-4 text-black px-4 rounded-full font-bold bg-[#fcfab2] border-b-8 border-r-4 border-t-2 border-black hover:scale-105 transition-all mt-auto text-center">
+                    <a href={`/blogs/${blog._id}`} className="w-full mt-auto text-sm sm:text-xl py-2.5 sm:py-4 text-black px-4 rounded-full font-bold bg-[#fcfab2] border-b-8 border-r-4 border-t-2 border-black hover:scale-105 transition-all text-center">
                       Read More
                     </a>
                   </div>
